@@ -1,0 +1,21 @@
+repositories {
+    maven { url 'https://cache-redirector.jetbrains.com/plugins.jetbrains.com/maven' }
+}
+
+configurations {
+    kotlinPlugin
+}
+
+def kotlinPluginBuild = '1.3.72-release-IJ2020.1-6:ideadev'
+def pluginChannelSeparator = kotlinPluginBuild.indexOf(":")
+def groupId = pluginChannelSeparator == -1 ? "com.jetbrains.plugins"
+        : "${kotlinPluginBuild.substring(pluginChannelSeparator + 1)}.com.jetbrains.plugins"
+def pluginArtifactVersion = pluginChannelSeparator == -1 ? kotlinPluginBuild : kotlinPluginBuild.substring(0, pluginChannelSeparator)
+dependencies {
+    kotlinPlugin "$groupId:org.jetbrains.kotlin:$pluginArtifactVersion@zip"
+}
+
+task setupKotlinPlugin(dependsOn: configurations.kotlinPlugin, type: Sync) {
+    from zipTree(configurations.kotlinPlugin.singleFile)
+    into "${project.buildDir}/kotlin"
+}
