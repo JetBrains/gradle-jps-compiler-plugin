@@ -24,7 +24,6 @@ dependencies {
 }
 
 val compileKotlin: KotlinCompile by tasks
-compileKotlin.dependsOn(tasks.getByName("setupKotlinPlugin"))
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }

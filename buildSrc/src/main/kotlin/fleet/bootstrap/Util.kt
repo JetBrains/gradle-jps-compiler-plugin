@@ -10,7 +10,7 @@ const val jpsVersion = "2020.2"
 const val jpsRuntimeConfiguration = "jpsRuntime"
 
 fun createJpsConfiguration(project: Project): Configuration {
-    return project.configurations.create("jpsRuntime") {
+    return project.configurations.create(jpsRuntimeConfiguration) {
         isVisible = false
         withDependencies {
             val jpsZip = downloadJps(project)
@@ -53,4 +53,17 @@ fun downloadJps(project: Project): File {
     } finally {
         project.repositories.remove(repository)
     }
+}
+
+fun downloadKotlin(project: Project, version: String, channel: String): File {
+    val groupId = if (channel.isEmpty()) "com.jetbrains.plugins" else "${channel}.com.jetbrains.plugins"
+    val repository = project.repositories.maven(url = "https://cache-redirector.jetbrains.com/plugins.jetbrains.com/maven")
+    val kotlinZip = try {
+        project.repositories.add(repository)
+        val dependency = project.dependencies.create("$groupId:org.jetbrains.kotlin:$version@zip")
+        project.configurations.detachedConfiguration(dependency).singleFile
+    } finally {
+        project.repositories.remove(repository)
+    }
+    return unzip(kotlinZip, kotlinZip.parentFile, project)
 }

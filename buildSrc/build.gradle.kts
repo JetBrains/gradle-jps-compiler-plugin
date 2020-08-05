@@ -24,7 +24,6 @@ gradlePlugin {
 //  probably we need to compile it in the runtime on users' side
 //  it will also allow users to customize jps version to use
 val jpsVersion = "2020.2"
-val jpsRuntimeConfiguration = "jpsRuntime"
 
 fun createJpsConfiguration(project: Project): Configuration {
     return project.configurations.create("jpsRuntime") {
