@@ -32,16 +32,15 @@ tasks {
     }
 }
 
-
 fun createJpsConfiguration(project: Project): Configuration {
     return project.configurations.create("jpsRuntime") {
         isVisible = false
         withDependencies {
             val jpsZip = downloadJps(project)
-            val jspDir = unzip(jpsZip, jpsZip.parentFile, project)
+            val jpsDir = unzip(jpsZip, jpsZip.parentFile, project)
             dependencies.add(project.dependencies.create("org.apache.maven:maven-embedder:3.6.0"))
             dependencies.add(project.dependencies.create(
-                    project.fileTree("dir" to jspDir, "include" to listOf("*.jar"))
+                    project.fileTree("dir" to jpsDir, "include" to listOf("*.jar"))
             ))
         }
     }

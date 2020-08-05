@@ -21,6 +21,7 @@ val jpsCompile = task<JpsCompile>("jpsCompile") {
     projectPath = "/Users/Ilia.Shulgin/Documents/projects/intellij"
     classpathOutputFilePath = "kek.txt"
     kotlinVersion = "1.3.72-release-IJ2020.1-6:ideadev"
+    jpsWrapperPath = "buildSrc/jps-wrapper/build/libs/jps-wrapper-with-deps.jar"
 }
 
 task<JavaExec>("run") {

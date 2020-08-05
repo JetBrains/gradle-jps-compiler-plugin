@@ -18,26 +18,36 @@ import java.io.File
 import kotlin.system.exitProcess
 
 fun main() {
-    println(System.getProperty("java.home"))
     val model = initializeModel()
 
     val scopes =
             mutableListOf<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>()
-
-    val mainModule = Properties.module
-
     JavaModuleBuildTargetType.ALL_TYPES.forEach { moduleType ->
         val builder =
                 CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope.newBuilder()
                         .setTypeId(moduleType.typeId).setForceBuild(Properties.forceRebuild)
-        scopes.add(builder.addAllTargetId(listOf(mainModule)).build())
+        scopes.add(builder.addAllTargetId(listOf(Properties.moduleName)).build())
     }
 
+    val jdkTable = File(Properties.jdkTable).readLines().map {
+        val (name, path) = it.split("=")
+        name to path
+    }.toMap()
+
+    val currentJdk = getCurrentJdk()
     model.project.modules.mapNotNull { it.getSdkReference(JpsJavaSdkType.INSTANCE)?.sdkName }.distinct()
             .forEach { sdkName ->
-                addJdk(model.global, sdkName, getCurrentJdk())
+                val jdkHomePath = jdkTable[sdkName]
+                if (jdkHomePath == null) {
+                    println("SDK '$sdkName' not specified. Using current JDK ($currentJdk) as fallback.")
+                }
+                addJdk(model.global, sdkName, jdkHomePath ?: currentJdk)
             }
 
+    runBuild(model, scopes, Properties.moduleName)
+}
+
+private fun runBuild(model: JpsModel, scopes: MutableList<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>, mainModule: String) {
     try {
         Standalone.runBuild({ model }, File(Properties.dataStorageRoot), { msg ->
             println(msg)
@@ -65,7 +75,7 @@ private fun saveRuntimeClasspath(model: JpsModel, mainModule: String) {
 
     val compilationOutputs = enumerator.satisfying { it !is JpsLibraryDependency }.classes().roots
 
-    File(Properties.classpathOut).writeText((compilationOutputs + m2Deps).joinToString(":"))
+    File(Properties.classpathOutputFilePath).writeText((compilationOutputs + m2Deps).joinToString(":"))
 }
 
 private fun initializeModel(): JpsModel {
@@ -76,7 +86,7 @@ private fun initializeModel(): JpsModel {
     pathVariablesConfiguration.addPathVariable("MAVEN_REPOSITORY", File(System.getProperty("user.home"), ".m2/repository").absolutePath)
 
     val pathVariables = JpsModelSerializationDataService.computeAllPathVariables(model.global)
-    JpsProjectLoader.loadProject(model.project, pathVariables, Properties.project)
+    JpsProjectLoader.loadProject(model.project, pathVariables, Properties.projectPath)
     return model
 }
 
