@@ -45,7 +45,7 @@ fun unzip(zipFile: File, cacheDirectory: File, project: Project): File {
 }
 
 fun downloadJps(project: Project): File {
-    val repository = project.repositories.maven(url = "https://www.jetbrains.com/intellij-repository/releases")
+    val repository = project.repositories.maven(url = "https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
     try {
         project.repositories.add(repository)
         val dependency = project.dependencies.create("com.jetbrains.intellij.idea:jps-standalone:$jpsVersion@zip")

@@ -7,15 +7,11 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.repositories
 import org.gradle.kotlin.dsl.task
-import java.io.File
 
 class JpsPlugin : Plugin<Project> {
     companion object {
         const val KOTLIN_PLUGIN_DIR = "kotlin"
         const val DEFAULT_KOTLIN_PLUGIN_VERSION = "1.3.72-release-IJ2020.1-6:ideadev"
-
-        const val JPS_DIR = "jps"
-        const val JPS_VERSION = "201.8538.31"
     }
 
     override fun apply(project: Project) {
