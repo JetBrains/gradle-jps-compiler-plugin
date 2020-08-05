@@ -11,7 +11,7 @@ class JpsPlugin : Plugin<Project> {
     }
 }
 
-class JdkTableExtension {
+open class JdkTableExtension {
     companion object {
         const val EXTENSION_NAME = "jdkTable"
     }
