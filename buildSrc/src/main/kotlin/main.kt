@@ -1,5 +1,3 @@
-package fleet.bootstrap
-
 import org.jetbrains.jps.api.CmdlineRemoteProto
 import org.jetbrains.jps.build.Standalone
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
