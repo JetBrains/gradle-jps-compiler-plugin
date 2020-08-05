@@ -6,6 +6,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
+import java.io.File
 
 open class JpsCompile : DefaultTask() {
     @Input
@@ -45,6 +46,7 @@ open class JpsCompile : DefaultTask() {
         } ?: emptySet()
 
         val jdkTable = project.extensions.findByType(JdkTableExtension::class)?.jdkTable ?: emptyMap()
+        val configDirectory = prepareConfigDirectory(jdkTable)
 
         val task = this
         project.javaexec {
@@ -58,10 +60,30 @@ open class JpsCompile : DefaultTask() {
                     JpsCompile::incremental, JpsCompile::dataStorageRoot).map { property ->
                 "build.${property.name}" to property.get(task)?.toString()
             }.toMap()
-
+            systemProperty("idea.config.path", configDirectory.absolutePath)
             if (kotlinDirectory != null) {
                 systemProperty("kotlinHome", "$kotlinDirectory/Kotlin")
             }
         }
     }
+}
+
+fun prepareConfigDirectory(jdkTable: Map<String, String>): File {
+    val builder = StringBuilder("<application>\n  <component name=\"ProjectJdkTable\">")
+    jdkTable.forEach { (name, path) ->
+        builder.append("    <jdk version=\"2\">\n")
+                .append("      <name value=\"$name\" />\n")
+                .append("      <type value=\"JavaSDK\" />\n")
+                .append("      <homePath value=\"$path\" />\n")
+                .append("      <roots />\n")
+                .append("      <additional />\n")
+//                .append("      <version value=\"java version &quot;1.8.0_201&quot;\" />\n")
+                .append("    </jdk>\n")
+    }
+    builder.append("  <component>\n</application>")
+    val config = File.createTempFile("gradle", "config")
+    val options = File(config, "options")
+    options.mkdir()
+    File(options, "jdk.table.xml").writeText(builder.toString())
+    return config
 }
