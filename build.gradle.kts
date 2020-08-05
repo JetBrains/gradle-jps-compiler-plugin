@@ -6,10 +6,9 @@ repositories {
 
 plugins {
     kotlin("jvm") version "1.3.70"
+    id("jps-plugin")
 }
-apply(from = "setupKotlin.gradle")
 
-val jpsVersion = "201.8538.31"
 val jpsDepsDir = "$buildDir/jps"
 val kotlinHome = "$buildDir/kotlin/Kotlin"
 
@@ -17,31 +16,14 @@ dependencies {
     implementation("org.apache.maven:maven-embedder:3.6.0")
     implementation(fileTree("dir" to jpsDepsDir, "include" to listOf("*.jar")))
 
-
     implementation(fileTree("dir" to "$kotlinHome/lib",
             "include" to listOf("jps/kotlin-jps-plugin.jar", "kotlin-plugin.jar", "kotlin-reflect.jar")))
     implementation(fileTree("dir" to "$kotlinHome/kotlinc/lib",
             "include" to listOf("kotlin-stdlib.jar")))
 }
 
-val setupJpsDeps = task("setupJpsDeps") {
-    outputs.dir(jpsDepsDir)
-    doFirst {
-        val archive = "$buildDir/jps-deps.zip"
-        ant.invokeMethod("get", mapOf("src" to
-                "https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/jps-standalone/$jpsVersion/jps-standalone-$jpsVersion.zip",
-                "dest" to archive))
-        copy {
-            from(zipTree(archive))
-            into(jpsDepsDir)
-        }
-        File(archive).delete()
-    }
-}
-
-
 val compileKotlin: KotlinCompile by tasks
-compileKotlin.dependsOn(tasks.getByName("setupKotlinPlugin"), setupJpsDeps)
+compileKotlin.dependsOn(tasks.getByName("setupKotlinPlugin"), tasks.getByName("setupJpsDeps"))
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }
