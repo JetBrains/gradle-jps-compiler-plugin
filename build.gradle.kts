@@ -1,3 +1,4 @@
+import fleet.bootstrap.JpsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 repositories {
@@ -28,24 +29,18 @@ compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }
 
-val jpsCompile = task<JavaExec>("jpsCompile") {
-    //todo: extract to a separate task with @Option for targetModule and @Output for classpath result
-    dependsOn(tasks.getByName("build"))
-    classpath = sourceSets["main"].runtimeClasspath
-    main = "fleet.bootstrap.MainKt"
-    val systemProps = System.getProperties()
-            .filterKeys { it is String && it.startsWith("build.") }
-            .map { it.key as String to it.value }
-            .toMap().toMutableMap()
-    systemProps.putIfAbsent("build.kotlinHome", kotlinHome)
-    systemProperties = systemProps
+val jpsCompile = task<JpsCompile>("jpsCompile") {
+    incremental = true
+    module = "fleet.app"
+    project = "/Users/Ilia.Shulgin/Documents/projects/intellij"
+    classpathOut = "kek.txt"
 }
 
 task<JavaExec>("run") {
     //todo: extract to a separate task with @Option for targetModule
     dependsOn(jpsCompile)
     //todo: get classpath content from @Output of jpsCompile
-    classpath(File(System.getProperties().getProperty("build.classpathOut")).readText().split(File.pathSeparatorChar))
+//    classpath(File(System.getProperties().getProperty("build.classpathOut")).readText().split(File.pathSeparatorChar))
     //todo: get main class from command line argument (@Option)
     main = "fleet.app.MainKt"
     //todo: not sure how to get this
@@ -54,6 +49,12 @@ task<JavaExec>("run") {
             "-Djava.awt.headless=true",
             "-Dfleet.debug.mode=true",
             "-Dfleet.config.path=../config/fleet-frontend")
+}
+
+task("kek") {
+    doLast {
+        println("asd")
+    }
 }
 
 tasks {
