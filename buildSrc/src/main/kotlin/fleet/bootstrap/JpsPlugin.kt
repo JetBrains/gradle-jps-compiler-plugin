@@ -44,22 +44,6 @@ class JpsPlugin : Plugin<Project> {
                 from(zipTree(kotlinPlugin.singleFile))
                 into("${project.buildDir}/$KOTLIN_PLUGIN_DIR")
             }
-
-            task("setupJpsDeps") {
-                val jpsDir = "$buildDir/$JPS_DIR"
-                outputs.dir(jpsDir)
-                doFirst {
-                    val archive = "$buildDir/jps-deps.zip"
-                    ant.invokeMethod("get", mapOf("src" to
-                            "https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/jps-standalone/$JPS_VERSION/jps-standalone-$JPS_VERSION.zip",
-                            "dest" to archive))
-                    copy {
-                        from(zipTree(archive))
-                        into(jpsDir)
-                    }
-                    File(archive).delete()
-                }
-            }
         }
     }
 }
