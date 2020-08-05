@@ -50,11 +50,9 @@ open class JpsCompile : DefaultTask() {
 
         val task = this
         project.javaexec {
-            classpath(JpsPlugin::class.java.protectionDomain.codeSource?.location?.toURI()?.path)
-            classpath(project.configurations[jpsRuntimeConfiguration].files) // make it configurable?
+            // FIXME add fat jar
             classpath(kotlinClasspath)
 
-            main = "fleet.bootstrap.runner.MainKt"
             systemProperties = listOf(
                     JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
                     JpsCompile::incremental, JpsCompile::dataStorageRoot).map { property ->

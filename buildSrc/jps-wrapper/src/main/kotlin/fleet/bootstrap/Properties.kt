@@ -1,3 +1,5 @@
+package fleet.bootstrap
+
 import kotlin.reflect.KProperty
 
 object Properties {

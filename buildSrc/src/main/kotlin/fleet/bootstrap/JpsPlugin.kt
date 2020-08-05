@@ -7,7 +7,6 @@ import org.gradle.kotlin.dsl.create
 class JpsPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.extensions.create(JdkTableExtension.EXTENSION_NAME, JdkTableExtension::class)
-        createJpsConfiguration(project)
     }
 }
 
