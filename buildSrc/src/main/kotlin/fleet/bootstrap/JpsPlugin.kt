@@ -2,16 +2,23 @@ package fleet.bootstrap
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.create
 
 class JpsPlugin : Plugin<Project> {
+    override fun apply(project: Project) {
+        project.extensions.create(JdkTableExtension.EXTENSION_NAME, JdkTableExtension::class)
+        createJpsConfiguration(project)
+    }
+}
+
+class JdkTableExtension {
     companion object {
-        const val DEFAULT_KOTLIN_PLUGIN_VERSION = "1.3.72-release-IJ2020.1-6:ideadev"
+        const val EXTENSION_NAME = "jdkTable"
     }
 
-    override fun apply(project: Project) {
-        // TODO configurable
+    val jdkTable = mutableMapOf<String, String>()
 
-        createJpsConfiguration(project)
-        // create tasks
+    fun jdk(name: String, path: String) {
+        jdkTable[name] = path
     }
 }
