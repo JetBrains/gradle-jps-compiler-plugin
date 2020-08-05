@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm")
 }
 
-val jpsVersion = "2020.2"
+val jpsVersion = "201.7846.76"
 
 repositories {
     mavenCentral()
