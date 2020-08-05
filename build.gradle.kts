@@ -10,19 +10,6 @@ plugins {
     id("jps-plugin")
 }
 
-val jpsDepsDir = "$buildDir/jps"
-val kotlinHome = "$buildDir/kotlin/Kotlin"
-
-dependencies {
-    implementation("org.apache.maven:maven-embedder:3.6.0")
-    implementation(fileTree("dir" to jpsDepsDir, "include" to listOf("*.jar")))
-
-    implementation(fileTree("dir" to "$kotlinHome/lib",
-            "include" to listOf("jps/kotlin-jps-plugin.jar", "kotlin-plugin.jar", "kotlin-reflect.jar")))
-    implementation(fileTree("dir" to "$kotlinHome/kotlinc/lib",
-            "include" to listOf("kotlin-stdlib.jar")))
-}
-
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     jvmTarget = "1.8"
@@ -33,6 +20,7 @@ val jpsCompile = task<JpsCompile>("jpsCompile") {
     moduleName = "fleet.app"
     projectPath = "/Users/Ilia.Shulgin/Documents/projects/intellij"
     classpathOutputFilePath = "kek.txt"
+    kotlinVersion = "1.3.72-release-IJ2020.1-6:ideadev"
 }
 
 task<JavaExec>("run") {
