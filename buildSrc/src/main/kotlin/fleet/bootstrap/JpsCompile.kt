@@ -53,7 +53,7 @@ open class JpsCompile : DefaultTask() {
             systemProperties = listOf(
                     JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
                     JpsCompile::incremental, JpsCompile::dataStorageRoot).map { property ->
-                property.name to property.get(task)?.toString()
+                "build.${property.name}" to property.get(task)?.toString()
             }.toMap()
 
             if (kotlinDirectory != null) {
