@@ -32,7 +32,7 @@ val jpsCompile = task<JpsCompile>("jpsCompile") {
     incremental = true
     moduleName = "fleet.app"
     projectPath = "/Users/Ilia.Shulgin/Documents/projects/intellij"
-    classpathOut = "kek.txt"
+    classpathOutputFilePath = "kek.txt"
 }
 
 task<JavaExec>("run") {

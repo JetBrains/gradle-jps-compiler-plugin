@@ -14,7 +14,7 @@ open class JpsCompile : DefaultTask() {
     var projectPath: String? = null
 
     @Input
-    var classpathOut: String? = null
+    var classpathOutputFilePath: String? = null
 
     @Input
     var incremental: Boolean = true
@@ -51,7 +51,7 @@ open class JpsCompile : DefaultTask() {
 
             main = "fleet.bootstrap.runner.MainKt"
             systemProperties = listOf(
-                    JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOut,
+                    JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
                     JpsCompile::incremental, JpsCompile::dataStorageRoot).map { property ->
                 property.name to property.get(task)?.toString()
             }.toMap()
