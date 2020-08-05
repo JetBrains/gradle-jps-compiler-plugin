@@ -31,8 +31,8 @@ compileKotlin.kotlinOptions {
 
 val jpsCompile = task<JpsCompile>("jpsCompile") {
     incremental = true
-    module = "fleet.app"
-    project = "/Users/Ilia.Shulgin/Documents/projects/intellij"
+    moduleName = "fleet.app"
+    projectPath = "/Users/Ilia.Shulgin/Documents/projects/intellij"
     classpathOut = "kek.txt"
 }
 

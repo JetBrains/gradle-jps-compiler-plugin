@@ -1,30 +1,13 @@
-plugins {
-    `kotlin-dsl`
-}
+package fleet.bootstrap
 
-repositories {
-    jcenter()
-}
+import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.kotlin.dsl.fileTree
+import org.gradle.kotlin.dsl.maven
+import java.io.File
 
-configurations {
-    configurations["compile"].extendsFrom(createJpsConfiguration(project))
-}
-
-gradlePlugin {
-    plugins {
-        register("jps-plugin") {
-            id = "jps-plugin"
-            implementationClass = "fleet.bootstrap.JpsPlugin"
-        }
-    }
-}
-
-// todo: it's a copy of Util.kt
-//  jps dependencies are needed for compiling main.kt
-//  probably we need to compile it in the runtime on users' side
-//  it will also allow users to customize jps version to use
-val jpsVersion = "2020.2"
-val jpsRuntimeConfiguration = "jpsRuntime"
+const val jpsVersion = "2020.2"
+const val jpsRuntimeConfiguration = "jpsRuntime"
 
 fun createJpsConfiguration(project: Project): Configuration {
     return project.configurations.create("jpsRuntime") {
@@ -65,7 +48,7 @@ fun downloadJps(project: Project): File {
     val repository = project.repositories.maven(url = "https://www.jetbrains.com/intellij-repository/releases")
     try {
         project.repositories.add(repository)
-        val dependency = project.dependencies.create("com.jetbrains.intellij.idea:jps-standalone:${jpsVersion}@zip")
+        val dependency = project.dependencies.create("com.jetbrains.intellij.idea:jps-standalone:$jpsVersion@zip")
         return project.configurations.detachedConfiguration(dependency).singleFile
     } finally {
         project.repositories.remove(repository)

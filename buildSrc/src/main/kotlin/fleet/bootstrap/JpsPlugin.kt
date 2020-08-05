@@ -20,6 +20,9 @@ class JpsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         // TODO configurable
+
+        createJpsConfiguration(project)
+
         val pluginVersion = DEFAULT_KOTLIN_PLUGIN_VERSION
         val groupId =
                 if (pluginVersion.indexOf(":") == -1) "com.jetbrains.plugins"
