@@ -37,5 +37,5 @@ fun downloadKotlin(project: Project, version: String, channel: String): File {
     } finally {
         project.repositories.remove(repository)
     }
-    return unzip(kotlinZip, kotlinZip.parentFile, project)
+    return unzip(kotlinZip, kotlinZip.parentFile, project).resolve("Kotlin")
 }

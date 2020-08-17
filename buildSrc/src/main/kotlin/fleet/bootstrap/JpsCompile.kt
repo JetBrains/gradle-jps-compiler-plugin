@@ -58,14 +58,13 @@ open class JpsCompile : DefaultTask() {
         jdkTable.writeText(jdkTableContent.map { (k, v) -> "$k=$v" }.joinToString("\n"))
 
         project.javaexec {
-            classpath(jpsWrapperPath)
-            classpath(kotlinClasspath)
+            classpath(jpsWrapperPath, kotlinClasspath)
+            main = "fleet.bootstrap.MainKt"
 
-            systemProperties = listOf(
-                    JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
-                    JpsCompile::incremental, JpsCompile::dataStorageRoot, JpsCompile::jdkTable).map { property ->
-                property.name.withPrefix() to property.get(this@JpsCompile)?.toString()
-            }.toMap()
+            listOf(JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
+                    JpsCompile::incremental, JpsCompile::dataStorageRoot, JpsCompile::jdkTable).forEach { property ->
+                systemProperty(property.name.withPrefix(), property.get(this@JpsCompile)?.toString())
+            }
 
             if (kotlinDirectory != null) {
                 systemProperty("kotlinHome".withPrefix(), "$kotlinDirectory/Kotlin")
@@ -73,5 +72,5 @@ open class JpsCompile : DefaultTask() {
         }
     }
 
-    internal fun String.withPrefix() = "$PROPERTY_PREFIX.$this"
+    private fun String.withPrefix() = "$PROPERTY_PREFIX.$this"
 }
