@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
 val jpsVersion = "201.7846.76"
@@ -17,18 +18,17 @@ dependencies {
     implementation(kotlin("reflect"))
 }
 
-val fatJar = task("fatJar", type = Jar::class) {
-    archiveBaseName.set("${project.name}-with-deps")
-    manifest {
-        attributes["Main-Class"] = "fleet.bootstrap.MainKt"
-    }
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
-    with(tasks.jar.get() as CopySpec)
-}
-
 tasks {
-    "build" {
-        dependsOn(fatJar)
+    build {
+        dependsOn(shadowJar)
+    }
+    jar {
+        manifest {
+            attributes["Main-Class"] = "fleet.bootstrap.MainKt"
+        }
+    }
+    shadowJar {
+        mergeServiceFiles()
     }
 }
 
