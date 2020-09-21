@@ -3,10 +3,11 @@ plugins {
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
-val jpsVersion = "201.7846.76"
+val jpsVersion = "202.7319.50"
 
 repositories {
     mavenCentral()
+    maven("https://cache-redirector.jetbrains.com/jetbrains.bintray.com/intellij-third-party-dependencies") // for fastutil
 }
 
 configurations {
@@ -39,6 +40,8 @@ fun createJpsConfiguration(project: Project): Configuration {
             val jpsZip = downloadJps(project)
             val jpsDir = unzip(jpsZip, jpsZip.parentFile, project)
             dependencies.add(project.dependencies.create("org.apache.maven:maven-embedder:3.6.0"))
+            // todo: why it's not included into jps-standalone
+            dependencies.add(project.dependencies.create("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.3.1-3"))
             dependencies.add(project.dependencies.create(
                     project.fileTree("dir" to jpsDir, "include" to listOf("*.jar"))
             ))
