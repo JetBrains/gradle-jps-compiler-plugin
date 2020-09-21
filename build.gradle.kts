@@ -6,13 +6,13 @@ repositories {
 }
 
 plugins {
-    kotlin("jvm") version "1.3.70"
+    kotlin("jvm") version "1.4.10"
     id("jps-plugin")
 }
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = "1.11"
 }
 
 val jpsCompile = task<JpsCompile>("jpsCompile") {
