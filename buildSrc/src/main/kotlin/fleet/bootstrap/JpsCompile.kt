@@ -34,7 +34,7 @@ open class JpsCompile : DefaultTask() {
 
     private val dataStorageRoot = "${project.buildDir}/out"
 
-    private val jdkTable = File(project.buildDir, "jdkTable")
+    private val jdkTable = File(project.buildDir, "jdkTable.txt")
 
     @TaskAction
     fun compile() {
@@ -55,6 +55,7 @@ open class JpsCompile : DefaultTask() {
         } ?: emptySet()
 
         val jdkTableContent = project.extensions.findByType(JdkTableExtension::class)?.jdkTable ?: emptyMap()
+        project.buildDir.mkdirs()
         jdkTable.writeText(jdkTableContent.map { (k, v) -> "$k=$v" }.joinToString("\n"))
 
         project.javaexec {
