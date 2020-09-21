@@ -1,5 +1,8 @@
 package fleet.bootstrap
 
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.util.io.URLUtil.*
 import org.jetbrains.jps.api.CmdlineRemoteProto
 import org.jetbrains.jps.build.Standalone
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
@@ -40,8 +43,11 @@ fun main() {
                 val jdkHomePath = jdkTable[sdkName]
                 if (jdkHomePath == null) {
                     println("SDK '$sdkName' not specified. Using current JDK ($currentJdk) as fallback.")
+                } else {
+                    println("Using $jdkHomePath for '$sdkName' jdk.")
                 }
                 addJdk(model.global, sdkName, jdkHomePath ?: currentJdk)
+                readModulesFromReleaseFile(model, sdkName, jdkHomePath ?: currentJdk)
             }
 
     runBuild(model, scopes, Properties.moduleName)
@@ -97,6 +103,40 @@ private fun addJdk(global: JpsGlobal, jdkName: String, jdkHomePath: String) {
         sdk.addRoot(toolsJar, JpsOrderRootType.COMPILED)
     }
 }
+
+private fun readModulesFromReleaseFile(model: JpsModel, sdkName: String, sdkHome: String) {
+    val additionalSdk = model.global.libraryCollection.findLibrary(sdkName)!!
+    val urls = additionalSdk.getRoots(JpsOrderRootType.COMPILED).map { it.url }
+    readModulesFromReleaseFile(File(sdkHome)).forEach {
+        if (!urls.contains(it)) {
+            additionalSdk.addRoot(it, JpsOrderRootType.COMPILED)
+        }
+    }
+}
+
+/**
+ * Code is copied from com.intellij.openapi.projectRoots.impl.JavaSdkImpl#findClasses(java.io.File, boolean)
+ */
+private fun readModulesFromReleaseFile(jbrBaseDir: File) : List<String> {
+    val releaseFile = File(jbrBaseDir, "release")
+    if (!releaseFile.exists()) return emptyList()
+    releaseFile.bufferedReader().use { stream ->
+        val p = java.util.Properties()
+        p.load(stream)
+        val jbrBaseUrl = JRT_PROTOCOL + SCHEME_SEPARATOR +
+                FileUtil.toSystemIndependentName(jbrBaseDir.absolutePath) +
+                JAR_SEPARATOR
+        val modules = p.getProperty("MODULES")
+        return if (modules != null) {
+            StringUtil.split(StringUtil.unquoteString(modules), " ").map { jbrBaseUrl + it }
+        }
+        else {
+            emptyList()
+        }
+    }
+}
+
+
 
 private fun getCurrentJdk(): String {
     val javaHome = System.getProperty("java.home")
