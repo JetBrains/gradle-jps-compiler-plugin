@@ -12,7 +12,11 @@ plugins {
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    jvmTarget = "1.11"
+    jvmTarget = "1.8"
+}
+
+jdkTable {
+    jdk("corretto-11", project.ext["jps.jdk"]!!.toString())
 }
 
 val jpsCompile = task<JpsCompile>("jpsCompile") {
@@ -20,8 +24,8 @@ val jpsCompile = task<JpsCompile>("jpsCompile") {
     moduleName = "fleet.app"
     projectPath = "/Users/Ilia.Shulgin/Documents/projects/intellij"
     classpathOutputFilePath = "kek.txt"
-    kotlinVersion = "1.3.72-release-IJ2020.1-6:ideadev"
-    jpsWrapperPath = "buildSrc/jps-wrapper/build/libs/jps-wrapper-with-deps.jar"
+    kotlinVersion = "1.4.10-release-IJ2020.2-1"
+    jpsWrapperPath = "buildSrc/jps-wrapper/build/libs/jps-wrapper-all.jar"
 }
 
 task<JavaExec>("run") {
@@ -37,12 +41,6 @@ task<JavaExec>("run") {
             "-Djava.awt.headless=true",
             "-Dfleet.debug.mode=true",
             "-Dfleet.config.path=../config/fleet-frontend")
-}
-
-task("kek") {
-    doLast {
-        println("asd")
-    }
 }
 
 tasks {
