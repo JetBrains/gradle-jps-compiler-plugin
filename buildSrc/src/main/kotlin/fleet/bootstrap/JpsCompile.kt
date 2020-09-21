@@ -67,8 +67,8 @@ open class JpsCompile : DefaultTask() {
                 systemProperty(property.name.withPrefix(), property.get(this@JpsCompile)?.toString())
             }
 
-            if (kotlinDirectory != null) {
-                systemProperty("kotlinHome".withPrefix(), "$kotlinDirectory/Kotlin")
+            kotlinDirectory?.let {
+                systemProperty("kotlinHome".withPrefix(), kotlinDirectory)
             }
         }
     }
