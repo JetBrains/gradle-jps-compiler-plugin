@@ -136,8 +136,6 @@ private fun readModulesFromReleaseFile(jbrBaseDir: File) : List<String> {
     }
 }
 
-
-
 private fun getCurrentJdk(): String {
     val javaHome = System.getProperty("java.home")
     if (File(javaHome).name == "jre") {

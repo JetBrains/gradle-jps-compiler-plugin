@@ -17,7 +17,6 @@ configurations {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
-    implementation("org.apache.maven:maven-embedder:3.6.0")
     // todo: why it's not included into jps-standalone
     implementation("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.3.1-3")
 
