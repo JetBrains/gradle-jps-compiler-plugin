@@ -6,6 +6,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.findByType
 import java.io.File
+import java.nio.file.Files
 
 open class JpsCompile : DefaultTask() {
     companion object {
@@ -58,6 +59,11 @@ open class JpsCompile : DefaultTask() {
         val jdkTableContent = project.extensions.findByType(JdkTableExtension::class)?.jdkTable ?: emptyMap()
         project.buildDir.mkdirs()
         jdkTable.writeText(jdkTableContent.map { (k, v) -> "$k=$v" }.joinToString("\n"))
+
+        classpathOutputFilePath = classpathOutputFilePath ?: Files.createTempFile("classpath", "").toString()
+        if (classpathOutputFilePath == null) {
+            classpathOutputFilePath
+        }
 
         // java -jar jps-compiler.jar -kotlin=1.4.10 -jdks=corretto=;asdf=asdfj
         project.javaexec {
