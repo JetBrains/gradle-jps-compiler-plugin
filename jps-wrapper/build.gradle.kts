@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm")
+    `embedded-kotlin`
     id("com.github.johnrengelman.shadow") version "6.0.0"
     `maven-publish`
     id("com.jfrog.bintray") version "1.8.5"

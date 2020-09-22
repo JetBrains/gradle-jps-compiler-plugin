@@ -1,1 +1,1 @@
-include("jps-wrapper")
+includeBuild("jps-wrapper")

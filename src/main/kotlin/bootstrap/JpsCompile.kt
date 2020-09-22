@@ -10,11 +10,11 @@ import java.io.File
 open class JpsCompile : DefaultTask() {
     companion object {
         const val PROPERTY_PREFIX = "build"
+        const val DEFAULT_JPS_WRAPPER_VERSION = "0.1.202.7319.50"
     }
 
-    // FIXME remove
     @Input
-    var jpsWrapperPath: String? = null
+    var jpsWrapperVersion: String? = DEFAULT_JPS_WRAPPER_VERSION
 
     @Input
     var moduleName: String? = null
@@ -38,10 +38,11 @@ open class JpsCompile : DefaultTask() {
 
     @TaskAction
     fun compile() {
+        val jpsWrapper = project.downloadJpsWrapper(jpsWrapperVersion)
         val kotlinDirectory = kotlinVersion?.let { pluginVersion ->
             val channel = pluginVersion.substringAfter(":", "")
             val version = pluginVersion.substringBefore(":")
-            downloadKotlin(project, version, channel)
+            project.downloadKotlin(version, channel)
         }
         val kotlinClasspath = kotlinDirectory?.let {
             project.fileTree("$it") {
@@ -60,7 +61,7 @@ open class JpsCompile : DefaultTask() {
 
         // java -jar jps-compiler.jar -kotlin=1.4.10 -jdks=corretto=;asdf=asdfj
         project.javaexec {
-            classpath(jpsWrapperPath, kotlinClasspath)
+            classpath(jpsWrapper.absolutePath, kotlinClasspath)
             main = "fleet.bootstrap.MainKt"
 
             listOf(JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,

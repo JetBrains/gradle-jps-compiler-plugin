@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.fileTree
 import org.gradle.kotlin.dsl.maven
 import java.io.File
 
-fun unzip(zipFile: File, cacheDirectory: File, project: Project): File {
+fun Project.unzip(zipFile: File, cacheDirectory: File): File {
     val targetDirectory = File(cacheDirectory, zipFile.name.removeSuffix(".zip"))
     val markerFile = File(targetDirectory, "markerFile")
     if (markerFile.exists()) {
@@ -18,8 +18,8 @@ fun unzip(zipFile: File, cacheDirectory: File, project: Project): File {
     }
     targetDirectory.mkdir()
 
-    project.copy {
-        from(project.zipTree(zipFile))
+    copy {
+        from(zipTree(zipFile))
         into(targetDirectory)
     }
 
@@ -27,15 +27,28 @@ fun unzip(zipFile: File, cacheDirectory: File, project: Project): File {
     return targetDirectory
 }
 
-fun downloadKotlin(project: Project, version: String, channel: String): File {
+fun Project.downloadKotlin(version: String, channel: String): File {
     val groupId = if (channel.isEmpty()) "com.jetbrains.plugins" else "${channel}.com.jetbrains.plugins"
-    val repository = project.repositories.maven(url = "https://cache-redirector.jetbrains.com/plugins.jetbrains.com/maven")
-    val kotlinZip = try {
-        project.repositories.add(repository)
-        val dependency = project.dependencies.create("$groupId:org.jetbrains.kotlin:$version@zip")
-        project.configurations.detachedConfiguration(dependency).singleFile
-    } finally {
-        project.repositories.remove(repository)
-    }
+    val kotlinZip = downloadDependency(
+            repository = "https://cache-redirector.jetbrains.com/plugins.jetbrains.com/maven",
+            dependencyNotation = "$groupId:org.jetbrains.kotlin:$version@zip")
     return unzip(kotlinZip, kotlinZip.parentFile, project).resolve("Kotlin")
+}
+
+fun Project.downloadJpsWrapper(version: String): File {
+    return downloadDependency(
+            "https://cache-redirector.jetbrains.com/jetbrains.bintray.com/intellij-third-party-dependencies",
+            "com.jetbrains.intellij.idea:jps-wrapper:$version"
+    )
+}
+
+private fun Project.downloadDependency(repository: String, dependencyNotation: String): File {
+    val repository = repositories.maven(url = repository)
+    return try {
+        repositories.add(repository)
+        val dependency = dependencies.create(dependencyNotation)
+        configurations.detachedConfiguration(dependency).singleFile
+    } finally {
+        repositories.remove(repository)
+    }
 }
