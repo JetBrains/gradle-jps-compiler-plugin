@@ -1,12 +1,17 @@
 plugins {
     kotlin("jvm")
     id("com.github.johnrengelman.shadow") version "6.0.0"
+    `maven-publish`
+    id("com.jfrog.bintray") version "1.8.5"
 }
 
 val jpsVersion = "202.7319.50"
 
+project.version = "0.1-$jpsVersion"
+
 repositories {
     mavenCentral()
+    // todo: should be included into jps-standalone
     maven("https://cache-redirector.jetbrains.com/jetbrains.bintray.com/intellij-third-party-dependencies") // for fastutil
 }
 
@@ -17,7 +22,7 @@ configurations {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
-    // todo: why it's not included into jps-standalone
+    // todo: should be included into jps-standalone
     implementation("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.3.1-3")
 
 }
@@ -78,5 +83,30 @@ fun downloadJps(project: Project): File {
         return project.configurations.detachedConfiguration(dependency).singleFile
     } finally {
         project.repositories.remove(repository)
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.jetbrains.intellij.idea"
+            artifactId = "jps-wrapper"
+            artifact(tasks.shadowJar.get().outputs.files.singleFile)
+        }
+    }
+}
+
+if (hasProperty("bintrayUser")) {
+    bintray {
+        user = property("bintrayUser").toString()
+        key = property("bintrayApiKey").toString()
+        publish = true
+        setPublications("maven")
+        pkg.apply {
+            userOrg = "jetbrains"
+            repo = "intellij-third-party-dependencies"
+            name = "jps-wrapper"
+            version.name = project.version.toString()
+        }
     }
 }
