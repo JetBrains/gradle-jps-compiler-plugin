@@ -1,8 +1,6 @@
-package fleet.bootstrap
+package jps.plugin
 
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.kotlin.dsl.fileTree
 import org.gradle.kotlin.dsl.maven
 import java.io.File
 
@@ -30,9 +28,9 @@ fun Project.unzip(zipFile: File, cacheDirectory: File): File {
 fun Project.downloadKotlin(version: String, channel: String): File {
     val groupId = if (channel.isEmpty()) "com.jetbrains.plugins" else "${channel}.com.jetbrains.plugins"
     val kotlinZip = downloadDependency(
-            repository = "https://cache-redirector.jetbrains.com/plugins.jetbrains.com/maven",
+            repositoryUrl = "https://cache-redirector.jetbrains.com/plugins.jetbrains.com/maven",
             dependencyNotation = "$groupId:org.jetbrains.kotlin:$version@zip")
-    return unzip(kotlinZip, kotlinZip.parentFile, project).resolve("Kotlin")
+    return project.unzip(kotlinZip, kotlinZip.parentFile).resolve("Kotlin")
 }
 
 fun Project.downloadJpsWrapper(version: String): File {
@@ -42,8 +40,8 @@ fun Project.downloadJpsWrapper(version: String): File {
     )
 }
 
-private fun Project.downloadDependency(repository: String, dependencyNotation: String): File {
-    val repository = repositories.maven(url = repository)
+private fun Project.downloadDependency(repositoryUrl: String, dependencyNotation: String): File {
+    val repository = repositories.maven(url = repositoryUrl)
     return try {
         repositories.add(repository)
         val dependency = dependencies.create(dependencyNotation)

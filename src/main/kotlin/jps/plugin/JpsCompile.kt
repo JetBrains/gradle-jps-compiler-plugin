@@ -1,4 +1,4 @@
-package fleet.bootstrap
+package jps.plugin
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
@@ -15,7 +15,7 @@ open class JpsCompile : DefaultTask() {
     }
 
     @Input
-    var jpsWrapperVersion: String? = DEFAULT_JPS_WRAPPER_VERSION
+    var jpsWrapperVersion: String = DEFAULT_JPS_WRAPPER_VERSION
 
     @Input
     var moduleName: String? = null
