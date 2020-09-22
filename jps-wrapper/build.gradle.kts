@@ -91,7 +91,9 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "com.jetbrains.intellij.idea"
             artifactId = "jps-wrapper"
-            artifact(tasks.shadowJar.get().outputs.files.singleFile)
+            artifact(tasks.shadowJar.get().outputs.files.singleFile) {
+                builtBy(tasks.shadowJar)
+            }
         }
     }
 }
