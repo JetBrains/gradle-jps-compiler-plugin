@@ -58,6 +58,7 @@ open class JpsCompile : DefaultTask() {
         project.buildDir.mkdirs()
         jdkTable.writeText(jdkTableContent.map { (k, v) -> "$k=$v" }.joinToString("\n"))
 
+        // java -jar jps-compiler.jar -kotlin=1.4.10 -jdks=corretto=;asdf=asdfj
         project.javaexec {
             classpath(jpsWrapperPath, kotlinClasspath)
             main = "fleet.bootstrap.MainKt"
