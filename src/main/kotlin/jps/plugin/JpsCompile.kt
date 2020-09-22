@@ -68,7 +68,7 @@ open class JpsCompile : DefaultTask() {
         // java -jar jps-compiler.jar -kotlin=1.4.10 -jdks=corretto=;asdf=asdfj
         project.javaexec {
             classpath(jpsWrapper.absolutePath, kotlinClasspath)
-            main = "fleet.bootstrap.MainKt"
+            main = "jps.wrapper.MainKt"
 
             listOf(JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
                     JpsCompile::incremental, JpsCompile::dataStorageRoot, JpsCompile::jdkTable).forEach { property ->

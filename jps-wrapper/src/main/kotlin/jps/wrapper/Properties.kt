@@ -1,4 +1,4 @@
-package fleet.bootstrap
+package jps.wrapper
 
 import kotlin.reflect.KProperty
 

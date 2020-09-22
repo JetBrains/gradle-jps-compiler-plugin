@@ -1,4 +1,4 @@
-package fleet.bootstrap
+package jps.wrapper
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
