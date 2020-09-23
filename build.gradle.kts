@@ -20,7 +20,7 @@ group = "com.jetbrains.intellij"
 
 pluginBundle {
     description = "Plugin for building JPS-based projects, created in IntelliJ IDEA"
-    website = "https://github.com/JetBrains/gradle-jps-compiler--plugin"
+    website = "https://github.com/JetBrains/gradle-jps-compiler-plugin"
     vcsUrl = "https://github.com/JetBrains/gradle-jps-compiler-plugin"
     tags = listOf("intellij", "jetbrains", "idea", "jps")
 }

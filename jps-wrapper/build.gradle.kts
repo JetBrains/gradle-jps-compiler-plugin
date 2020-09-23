@@ -34,7 +34,7 @@ tasks {
     }
     jar {
         manifest {
-            attributes["Main-Class"] = "fleet.bootstrap.MainKt"
+            attributes["Main-Class"] = "jps.wrapper.MainKt"
         }
     }
     shadowJar {

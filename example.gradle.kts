@@ -1,4 +1,4 @@
-import fleet.bootstrap.JpsCompile
+import jps.plugin.JpsCompile
 
 plugins {
     id("com.jetbrains.intellij.jps-plugin")

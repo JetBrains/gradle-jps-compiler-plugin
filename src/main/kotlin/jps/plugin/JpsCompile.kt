@@ -3,6 +3,7 @@ package jps.plugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.findByType
 import java.io.File
@@ -12,7 +13,11 @@ import java.nio.file.Files
 open class JpsCompile : DefaultTask() {
     companion object {
         const val PROPERTY_PREFIX = "build"
-        const val DEFAULT_JPS_WRAPPER_VERSION = "0.1.202.7319.50"
+        const val DEFAULT_JPS_WRAPPER_VERSION = "0.1-202.7319.50"
+    }
+
+    init {
+        outputs.upToDateWhen { false }
     }
 
     @Input
@@ -24,8 +29,8 @@ open class JpsCompile : DefaultTask() {
     @Input
     var projectPath: String? = null
 
-    @Input
-    var classpathOutputFilePath: String? = null
+    @OutputFile
+    var classpathOutputFilePath: String = Files.createTempFile("classpath", "").toString()
 
     @Input
     var incremental: Boolean = true
@@ -61,13 +66,8 @@ open class JpsCompile : DefaultTask() {
         project.buildDir.mkdirs()
         jdkTable.writeText(jdkTableContent.map { (k, v) -> "$k=$v" }.joinToString("\n"))
 
-        classpathOutputFilePath = classpathOutputFilePath ?: Files.createTempFile("classpath", "").toString()
-        if (classpathOutputFilePath == null) {
-            classpathOutputFilePath
-        }
-
         project.javaexec {
-            classpath(jpsWrapper.absolutePath, kotlinClasspath)
+            classpath(jpsWrapper, kotlinClasspath)
             main = "jps.wrapper.MainKt"
 
             listOf(JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
