@@ -8,8 +8,8 @@ repositories {
 }
 
 gradlePlugin {
-    plugins.create("jps-plugin") {
-        id = "com.jetbrains.intellij.jps-plugin"
+    plugins.create("jps-compiler-plugin") {
+        id = "com.jetbrains.intellij.jps-compiler-plugin"
         displayName = "JPS Compiler Plugin"
         implementationClass = "jps.plugin.JpsPlugin"
     }
@@ -20,7 +20,7 @@ group = "com.jetbrains.intellij"
 
 pluginBundle {
     description = "Plugin for building JPS-based projects, created in IntelliJ IDEA"
-    website = "https://github.com/JetBrains/gradle-jps-plugin"
-    vcsUrl = "https://github.com/JetBrains/gradle-jps-plugin"
+    website = "https://github.com/JetBrains/gradle-jps-compiler--plugin"
+    vcsUrl = "https://github.com/JetBrains/gradle-jps-compiler-plugin"
     tags = listOf("intellij", "jetbrains", "idea", "jps")
 }

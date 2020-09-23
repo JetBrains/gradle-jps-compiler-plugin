@@ -1,7 +1,7 @@
 import fleet.bootstrap.JpsCompile
 
 plugins {
-    id("jps-plugin")
+    id("com.jetbrains.intellij.jps-plugin")
 }
 
 jdkTable {
