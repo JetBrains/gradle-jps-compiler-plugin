@@ -21,6 +21,8 @@ import java.io.File
 import kotlin.system.exitProcess
 
 fun main() {
+    System.setProperty("jps.use.default.file.logging", "false")
+
     val model = initializeModel()
 
     val scopes =
@@ -60,8 +62,8 @@ private fun runBuild(model: JpsModel, scopes: MutableList<CmdlineRemoteProto.Mes
             if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) exitProcess(1)
         }, scopes, true)
         saveRuntimeClasspath(model, mainModule)
-    } catch (e: Exception) {
-        e.printStackTrace()
+    } catch (t: Throwable) {
+        t.printStackTrace()
         exitProcess(1)
     } finally {
         exitProcess(0)
