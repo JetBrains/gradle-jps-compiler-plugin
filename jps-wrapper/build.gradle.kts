@@ -7,7 +7,7 @@ plugins {
 
 val jpsVersion = "202.7319.50"
 
-project.version = "0.1-$jpsVersion"
+project.version = "0.2-$jpsVersion"
 
 repositories {
     mavenCentral()

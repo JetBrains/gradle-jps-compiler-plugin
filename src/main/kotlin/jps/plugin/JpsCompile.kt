@@ -13,7 +13,7 @@ import java.nio.file.Files
 open class JpsCompile : DefaultTask() {
     companion object {
         const val PROPERTY_PREFIX = "build"
-        const val DEFAULT_JPS_WRAPPER_VERSION = "0.1-202.7319.50"
+        const val DEFAULT_JPS_WRAPPER_VERSION = "0.2-202.7319.50"
     }
 
     init {
