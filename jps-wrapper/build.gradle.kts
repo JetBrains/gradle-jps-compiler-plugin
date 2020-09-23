@@ -24,6 +24,7 @@ dependencies {
     implementation(kotlin("reflect"))
     // todo: should be included into jps-standalone
     implementation("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.3.1-3")
+    implementation("org.apache.maven:maven-embedder:3.6.0")
 
 }
 
