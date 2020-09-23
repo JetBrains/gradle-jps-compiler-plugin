@@ -8,6 +8,7 @@ import org.gradle.kotlin.dsl.findByType
 import java.io.File
 import java.nio.file.Files
 
+@Suppress("unused")
 open class JpsCompile : DefaultTask() {
     companion object {
         const val PROPERTY_PREFIX = "build"
@@ -65,7 +66,6 @@ open class JpsCompile : DefaultTask() {
             classpathOutputFilePath
         }
 
-        // java -jar jps-compiler.jar -kotlin=1.4.10 -jdks=corretto=;asdf=asdfj
         project.javaexec {
             classpath(jpsWrapper.absolutePath, kotlinClasspath)
             main = "jps.wrapper.MainKt"
