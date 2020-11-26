@@ -1,10 +1,8 @@
 package jps.plugin
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import java.io.File
 import java.nio.file.Files
@@ -39,13 +37,21 @@ open class JpsCompile : DefaultTask() {
     @Input
     var kotlinVersion: String? = null
 
+    @Optional
+    @Input
+    var jpsWrapper: File? = null
+
+    @Optional
+    @Input
+    var systemProperties: Map<String, String> = emptyMap()
+
     private val dataStorageRoot = "${project.buildDir}/out"
 
     private val jdkTable = File(project.buildDir, "jdkTable.txt")
 
     @TaskAction
     fun compile() {
-        val jpsWrapper = project.downloadJpsWrapper(jpsWrapperVersion)
+        val jpsWrapper = jpsWrapper ?: project.downloadJpsWrapper(jpsWrapperVersion)
         val kotlinDirectory = kotlinVersion?.let { pluginVersion ->
             val channel = pluginVersion.substringAfter(":", "")
             val version = pluginVersion.substringBefore(":")
@@ -67,6 +73,7 @@ open class JpsCompile : DefaultTask() {
         project.buildDir.mkdirs()
         jdkTable.writeText(jdkTableContent.map { (k, v) -> "$k=$v" }.joinToString("\n"))
 
+        val extraProperties = systemProperties
         project.javaexec {
             classpath(jpsWrapper, kotlinClasspath)
             main = "jps.wrapper.MainKt"
@@ -76,6 +83,7 @@ open class JpsCompile : DefaultTask() {
                 systemProperty(property.name.withPrefix(), property.get(this@JpsCompile)?.toString())
             }
 
+            systemProperties(extraProperties)
             kotlinDirectory?.let {
                 systemProperty("kotlinHome".withPrefix(), kotlinDirectory)
             }
