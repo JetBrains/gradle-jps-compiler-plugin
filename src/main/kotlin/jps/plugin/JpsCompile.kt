@@ -57,6 +57,7 @@ open class JpsCompile : DefaultTask() {
                         "lib/jps/kotlin-jps-plugin.jar",
                         "lib/kotlin-plugin.jar",
                         "lib/kotlin-reflect.jar",
+                        "lib/kotlin-common.jar",
                         "kotlinc/lib/kotlin-stdlib.jar"
                 ))
             }.files

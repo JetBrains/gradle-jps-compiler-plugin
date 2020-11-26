@@ -15,7 +15,7 @@ gradlePlugin {
     }
 }
 
-version = "0.0.1"
+version = "0.0.2"
 group = "com.jetbrains.intellij"
 
 pluginBundle {
