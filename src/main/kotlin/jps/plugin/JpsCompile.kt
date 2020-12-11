@@ -38,7 +38,7 @@ open class JpsCompile : DefaultTask() {
     var kotlinVersion: String? = null
 
     @Optional
-    @Input
+    @InputFile
     var jpsWrapper: File? = null
 
     @Optional
