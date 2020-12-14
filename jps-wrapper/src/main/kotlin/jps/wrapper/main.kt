@@ -25,12 +25,13 @@ fun main() {
 
     val model = initializeModel()
 
-    val scopes =
-            mutableListOf<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>()
+    val scopes = mutableListOf<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>()
     JavaModuleBuildTargetType.ALL_TYPES.forEach { moduleType ->
-        val builder =
-                CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope.newBuilder()
-                        .setTypeId(moduleType.typeId).setForceBuild(Properties.forceRebuild)
+        val builder = CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope.newBuilder()
+            .setTypeId(moduleType.typeId).setForceBuild(Properties.forceRebuild)
+        if (!Properties.forceRebuild) {
+            System.setProperty("kotlin.incremental.compilation", "true")
+        }
         scopes.add(builder.addAllTargetId(listOf(Properties.moduleName)).build())
     }
 
@@ -41,25 +42,31 @@ fun main() {
 
     val currentJdk = getCurrentJdk()
     model.project.modules.mapNotNull { it.getSdkReference(JpsJavaSdkType.INSTANCE)?.sdkName }.distinct()
-            .forEach { sdkName ->
-                val jdkHomePath = jdkTable[sdkName]
-                if (jdkHomePath == null) {
-                    println("SDK '$sdkName' not specified. Using current JDK ($currentJdk) as fallback.")
-                } else {
-                    println("Using $jdkHomePath for '$sdkName' jdk.")
-                }
-                addJdk(model.global, sdkName, jdkHomePath ?: currentJdk)
-                readModulesFromReleaseFile(model, sdkName, jdkHomePath ?: currentJdk)
+        .forEach { sdkName ->
+            val jdkHomePath = jdkTable[sdkName]
+            if (jdkHomePath == null) {
+                println("SDK '$sdkName' not specified. Using current JDK ($currentJdk) as fallback.")
+            } else {
+                println("Using $jdkHomePath for '$sdkName' jdk.")
             }
+            addJdk(model.global, sdkName, jdkHomePath ?: currentJdk)
+            readModulesFromReleaseFile(model, sdkName, jdkHomePath ?: currentJdk)
+        }
 
     runBuild(model, scopes, Properties.moduleName)
 }
 
-private fun runBuild(model: JpsModel, scopes: MutableList<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>, mainModule: String) {
+private fun runBuild(
+    model: JpsModel,
+    scopes: MutableList<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>,
+    mainModule: String
+) {
     try {
         Standalone.runBuild({ model }, File(Properties.dataStorageRoot), { msg ->
             println(msg)
-            if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) exitProcess(1)
+            if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
+                exitProcess(1)
+            }
         }, scopes, true)
         saveRuntimeClasspath(model, mainModule)
     } catch (t: Throwable) {
@@ -73,13 +80,13 @@ private fun runBuild(model: JpsModel, scopes: MutableList<CmdlineRemoteProto.Mes
 private fun saveRuntimeClasspath(model: JpsModel, mainModule: String) {
     val mainJpsModule = model.project.modules.find { it.name == mainModule } ?: error("Module $mainModule not found.")
     val enumerator = JpsJavaExtensionService.dependencies(mainJpsModule)
-            .recursively()
-            .withoutSdk()
-            .includedIn(JpsJavaClasspathKind.PRODUCTION_RUNTIME)
+        .recursively()
+        .withoutSdk()
+        .includedIn(JpsJavaClasspathKind.PRODUCTION_RUNTIME)
 
     val m2Deps = enumerator.libraries
-            .flatMapTo(mutableSetOf()) { library -> library.getFiles(JpsOrderRootType.COMPILED) }
-            .filter { it.name.endsWith(".jar") }
+        .flatMapTo(mutableSetOf()) { library -> library.getFiles(JpsOrderRootType.COMPILED) }
+        .filter { it.name.endsWith(".jar") }
 
     val compilationOutputs = enumerator.satisfying { it !is JpsLibraryDependency }.classes().roots
 
@@ -89,9 +96,13 @@ private fun saveRuntimeClasspath(model: JpsModel, mainModule: String) {
 private fun initializeModel(): JpsModel {
     val model: JpsModel = JpsElementFactory.getInstance().createModel()
 
-    val pathVariablesConfiguration = JpsModelSerializationDataService.getOrCreatePathVariablesConfiguration(model.global)
+    val pathVariablesConfiguration =
+        JpsModelSerializationDataService.getOrCreatePathVariablesConfiguration(model.global)
     pathVariablesConfiguration.addPathVariable("KOTLIN_BUNDLED", "${Properties.kotlinHome}/kotlinc")
-    pathVariablesConfiguration.addPathVariable("MAVEN_REPOSITORY", File(System.getProperty("user.home"), ".m2/repository").absolutePath)
+    pathVariablesConfiguration.addPathVariable(
+        "MAVEN_REPOSITORY",
+        File(System.getProperty("user.home"), ".m2/repository").absolutePath
+    )
 
     val pathVariables = JpsModelSerializationDataService.computeAllPathVariables(model.global)
     JpsProjectLoader.loadProject(model.project, pathVariables, Properties.projectPath)
@@ -119,7 +130,7 @@ private fun readModulesFromReleaseFile(model: JpsModel, sdkName: String, sdkHome
 /**
  * Code is copied from com.intellij.openapi.projectRoots.impl.JavaSdkImpl#findClasses(java.io.File, boolean)
  */
-private fun readModulesFromReleaseFile(jbrBaseDir: File) : List<String> {
+private fun readModulesFromReleaseFile(jbrBaseDir: File): List<String> {
     val releaseFile = File(jbrBaseDir, "release")
     if (!releaseFile.exists()) return emptyList()
     releaseFile.bufferedReader().use { stream ->
@@ -131,8 +142,7 @@ private fun readModulesFromReleaseFile(jbrBaseDir: File) : List<String> {
         val modules = p.getProperty("MODULES")
         return if (modules != null) {
             StringUtil.split(StringUtil.unquoteString(modules), " ").map { jbrBaseUrl + it }
-        }
-        else {
+        } else {
             emptyList()
         }
     }
