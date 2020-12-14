@@ -2,7 +2,6 @@ package jps.plugin
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import java.io.File
 import java.nio.file.Files
@@ -45,7 +44,8 @@ open class JpsCompile : DefaultTask() {
     @Input
     var systemProperties: Map<String, String> = emptyMap()
 
-    private val dataStorageRoot = "${project.buildDir}/out"
+    @Input
+    val outputDirectory: String = "${project.buildDir}/out"
 
     private val jdkTable = File(project.buildDir, "jdkTable.txt")
 
@@ -79,11 +79,12 @@ open class JpsCompile : DefaultTask() {
             main = "jps.wrapper.MainKt"
 
             listOf(JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
-                    JpsCompile::incremental, JpsCompile::dataStorageRoot, JpsCompile::jdkTable).forEach { property ->
+                    JpsCompile::incremental, JpsCompile::jdkTable).forEach { property ->
                 systemProperty(property.name.withPrefix(), property.get(this@JpsCompile)?.toString())
             }
 
             systemProperties(extraProperties)
+            systemProperty("build.dataStorageRoot", outputDirectory)
             kotlinDirectory?.let {
                 systemProperty("kotlinHome".withPrefix(), kotlinDirectory)
             }
