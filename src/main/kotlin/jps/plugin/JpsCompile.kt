@@ -45,7 +45,7 @@ open class JpsCompile : DefaultTask() {
     var systemProperties: Map<String, String> = emptyMap()
 
     @Input
-    val outputDirectory: String = "${project.buildDir}/out"
+    var outputDirectory: String = "${project.buildDir}/jps"
 
     private val jdkTable = File(project.buildDir, "jdkTable.txt")
 
