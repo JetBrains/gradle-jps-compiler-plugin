@@ -22,9 +22,9 @@ import kotlin.system.exitProcess
 
 fun main() {
     System.setProperty("jps.use.default.file.logging", "false")
+    System.setProperty("build.dataStorageRoot", "${Properties.outputPath}/cache")
 
     val model = initializeModel()
-
     val scopes = mutableListOf<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>()
     JavaModuleBuildTargetType.ALL_TYPES.forEach { moduleType ->
         val builder = CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope.newBuilder()
@@ -35,10 +35,10 @@ fun main() {
         scopes.add(builder.addAllTargetId(listOf(Properties.moduleName)).build())
     }
 
-    val jdkTable = File(Properties.jdkTable).readLines().map {
+    val jdkTable = File(Properties.jdkTable).readLines().associate {
         val (name, path) = it.split("=")
         name to path
-    }.toMap()
+    }
 
     val currentJdk = getCurrentJdk()
     model.project.modules.mapNotNull { it.getSdkReference(JpsJavaSdkType.INSTANCE)?.sdkName }.distinct()
@@ -61,19 +61,20 @@ private fun runBuild(
     scopes: MutableList<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>,
     mainModule: String
 ) {
+    var exitCode = 0
     try {
         Standalone.runBuild({ model }, File(Properties.dataStorageRoot), { msg ->
             println(msg)
             if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
-                exitProcess(1)
+                exitCode = 1
             }
         }, scopes, true)
         saveRuntimeClasspath(model, mainModule)
     } catch (t: Throwable) {
         t.printStackTrace()
-        exitProcess(1)
+        exitCode = 1
     } finally {
-        exitProcess(0)
+        exitProcess(exitCode)
     }
 }
 
@@ -106,6 +107,7 @@ private fun initializeModel(): JpsModel {
 
     val pathVariables = JpsModelSerializationDataService.computeAllPathVariables(model.global)
     JpsProjectLoader.loadProject(model.project, pathVariables, Properties.projectPath)
+    JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project).outputUrl = "file://${Properties.outputPath}/out"
     return model
 }
 

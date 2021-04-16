@@ -35,9 +35,17 @@ fun Project.downloadKotlin(version: String, channel: String): File {
 
 fun Project.downloadJpsWrapper(version: String): File {
     return downloadDependency(
-            "https://cache-redirector.jetbrains.com/jetbrains.bintray.com/intellij-third-party-dependencies",
+            "https://cache-redirector.jetbrains.com/intellij-dependencies",
             "com.jetbrains.intellij.idea:jps-wrapper:$version"
     )
+}
+
+fun Project.downloadJpsStandalone(version: String): File {
+    val jpsZip = downloadDependency(
+        repositoryUrl = "https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases",
+        dependencyNotation = "com.jetbrains.intellij.idea:jps-standalone:$version@zip"
+    )
+    return project.unzip(jpsZip, jpsZip.parentFile)
 }
 
 private fun Project.downloadDependency(repositoryUrl: String, dependencyNotation: String): File {

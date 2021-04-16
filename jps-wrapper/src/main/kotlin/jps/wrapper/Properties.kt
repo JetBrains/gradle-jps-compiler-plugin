@@ -7,6 +7,8 @@ object Properties {
 
     val projectPath by Properties
 
+    val outputPath by Properties
+
     val moduleName by Properties
 
     private val incremental by Properties

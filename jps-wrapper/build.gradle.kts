@@ -1,39 +1,31 @@
 plugins {
     `embedded-kotlin`
-    id("com.github.johnrengelman.shadow") version "6.0.0"
     `maven-publish`
     id("com.jfrog.bintray") version "1.8.5"
 }
 
-val jpsVersion = "211.2735"
+val jpsVersion = "211.6693.111"
 
-project.version = "0.3-$jpsVersion"
+project.version = "0.5"
 
 repositories {
+    maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
+    maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
     mavenCentral()
-    maven("https://cache-redirector.jetbrains.com/jetbrains.bintray.com/intellij-third-party-dependencies")
 }
 
+
 dependencies {
-    implementation("com.jetbrains.intellij.tools:jps-build-standalone:$jpsVersion") {
-        targetConfiguration = "runtime"
-    }
-    implementation("com.jetbrains.intellij.tools:jps-build-script-dependencies:$jpsVersion") {
+    compileOnly("com.jetbrains.intellij.tools:jps-build-standalone:$jpsVersion") {
         targetConfiguration = "runtime"
     }
 }
 
 tasks {
-    build {
-        dependsOn(shadowJar)
-    }
     jar {
         manifest {
             attributes["Main-Class"] = "jps.wrapper.MainKt"
         }
-    }
-    shadowJar {
-        mergeServiceFiles()
     }
 }
 
@@ -42,8 +34,8 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "com.jetbrains.intellij.idea"
             artifactId = "jps-wrapper"
-            artifact(tasks.shadowJar.get().outputs.files.singleFile) {
-                builtBy(tasks.shadowJar)
+            artifact(tasks.jar.get().outputs.files.singleFile) {
+                builtBy(tasks.jar)
             }
         }
     }
