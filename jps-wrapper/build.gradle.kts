@@ -1,7 +1,6 @@
 plugins {
     `embedded-kotlin`
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.5"
 }
 
 val jpsVersion = "211.6693.111"
@@ -30,6 +29,15 @@ tasks {
 }
 
 publishing {
+    repositories {
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/public/p/noria/maven")
+            credentials {
+                username = System.getenv("JB_SPACE_CLIENT_ID")
+                password = System.getenv("JB_SPACE_CLIENT_SECRET")
+            }
+        }
+    }
     publications {
         create<MavenPublication>("maven") {
             groupId = "com.jetbrains.intellij.idea"
@@ -37,21 +45,6 @@ publishing {
             artifact(tasks.jar.get().outputs.files.singleFile) {
                 builtBy(tasks.jar)
             }
-        }
-    }
-}
-
-if (hasProperty("bintrayUser")) {
-    bintray {
-        user = property("bintrayUser").toString()
-        key = property("bintrayApiKey").toString()
-        publish = true
-        setPublications("maven")
-        pkg.apply {
-            userOrg = "jetbrains"
-            repo = "intellij-third-party-dependencies"
-            name = "jps-wrapper"
-            version.name = project.version.toString()
         }
     }
 }

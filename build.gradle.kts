@@ -3,10 +3,9 @@ plugins {
     id("com.gradle.plugin-publish") version "0.14.0"
 }
 
-plugins.withType<JavaPlugin> {
-    tasks.withType<GroovyCompile> {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "11"
     }
 }
 
