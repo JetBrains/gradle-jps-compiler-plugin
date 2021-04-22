@@ -3,6 +3,10 @@ plugins {
     id("com.gradle.plugin-publish") version "0.14.0"
 }
 
+repositories {
+    maven("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
+}
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
         jvmTarget = "11"
