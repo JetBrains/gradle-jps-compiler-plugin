@@ -9,7 +9,7 @@ JPS-standalone tool.
 
 ```kotlin
 plugins {
-    id("com.jetbrains.intellij.jps-compiler-plugin") version "0.1.0"
+    id("com.jetbrains.intellij.jps-compiler-plugin") version "0.1.1"
 }
 ```
 
@@ -37,6 +37,7 @@ val jpsCompilationTask = task<JpsCompile>("jpsCompile") {
     jpsVersion = "212-SNAPSHOT"
     incremental = true
     parallel = true
+    includeTests = false
     projectPath = projectDir.absolutePath
     kotlinVersion = "1.4.10-release-IJ2020.2-1"
 }
