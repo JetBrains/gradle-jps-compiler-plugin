@@ -36,6 +36,9 @@ open class JpsCompile : DefaultTask() {
     @Input
     var incremental: Boolean = true
 
+    @Input
+    var parallel: Boolean = true
+
     @Optional
     @Input
     var kotlinVersion: String? = null
@@ -88,7 +91,7 @@ open class JpsCompile : DefaultTask() {
 
             listOf(
                 JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
-                JpsCompile::incremental, JpsCompile::jdkTable, JpsCompile::outputPath
+                JpsCompile::incremental, JpsCompile::parallel, JpsCompile::jdkTable, JpsCompile::outputPath
             ).forEach { property ->
                 systemProperty(property.name.withPrefix(), property.get(this@JpsCompile)?.toString())
             }

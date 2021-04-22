@@ -35,6 +35,10 @@ fun main() {
         scopes.add(builder.addAllTargetId(listOf(Properties.moduleName)).build())
     }
 
+    if (Properties.parallel.toBoolean()) {
+        System.setProperty("compile.parallel", "true")
+    }
+
     val jdkTable = File(Properties.jdkTable).readLines().associate {
         val (name, path) = it.split("=")
         name to path

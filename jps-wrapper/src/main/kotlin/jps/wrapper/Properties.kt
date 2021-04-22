@@ -12,6 +12,9 @@ object Properties {
     val moduleName by Properties
 
     private val incremental by Properties
+
+    val parallel by Properties
+
     val forceRebuild = !incremental.toBoolean()
 
     val dataStorageRoot by Properties
