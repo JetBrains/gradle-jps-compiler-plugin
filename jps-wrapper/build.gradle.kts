@@ -31,7 +31,7 @@ tasks {
 publishing {
     repositories {
         maven {
-            url = uri("https://maven.pkg.jetbrains.space/public/p/noria/maven")
+            url = uri("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
             credentials {
                 username = System.getenv("JB_SPACE_CLIENT_ID")
                 password = System.getenv("JB_SPACE_CLIENT_SECRET")
