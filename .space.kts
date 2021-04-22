@@ -13,10 +13,16 @@ job("Publish plugin") {
         env["ORG_GRADLE_PROJECT_gradle.publish.key"] = Secrets("gradle_plugins_publish_key")
         env["ORG_GRADLE_PROJECT_gradle.publish.secret"] = Secrets("gradle_plugins_publish_secret")
     }
+    startOn {
+        gitPush { enabled = false }
+    }
 }
 
 job("Publish jps-wrapper") {
     gradlew("openjdk:11", "publish") {
         workDir = "jps-wrapper"
+    }
+    startOn {
+        gitPush { enabled = false }
     }
 }
