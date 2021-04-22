@@ -10,8 +10,8 @@ job("Build") {
 
 job("Publish plugin") {
     gradlew("openjdk:11", "publishPlugins") {
-        env["ORG_GRADLE_PROJECT_gradle.publish.key"] = Secrets("gradle_plugins_publish_key")
-        env["ORG_GRADLE_PROJECT_gradle.publish.secret"] = Secrets("gradle_plugins_publish_secret")
+        env["GRADLE_PUBLISH_KEY"] = Secrets("gradle_plugins_publish_key")
+        env["GRADLE_PUBLISH_SECRET"] = Secrets("gradle_plugins_publish_secret")
     }
     startOn {
         gitPush { enabled = false }
