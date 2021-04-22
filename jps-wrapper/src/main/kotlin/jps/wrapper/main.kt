@@ -3,9 +3,7 @@ package jps.wrapper
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.io.URLUtil.*
-import org.jetbrains.jps.api.CmdlineRemoteProto
 import org.jetbrains.jps.build.Standalone
-import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.model.JpsElementFactory
 import org.jetbrains.jps.model.JpsGlobal
@@ -23,22 +21,10 @@ import kotlin.system.exitProcess
 fun main() {
     System.setProperty("jps.use.default.file.logging", "false")
     System.setProperty("build.dataStorageRoot", "${Properties.outputPath}/cache")
+    System.setProperty("kotlin.incremental.compilation", Properties.incremental)
+    System.setProperty("compile.parallel", Properties.parallel)
 
     val model = initializeModel()
-    val scopes = mutableListOf<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>()
-    JavaModuleBuildTargetType.ALL_TYPES.forEach { moduleType ->
-        val builder = CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope.newBuilder()
-            .setTypeId(moduleType.typeId).setForceBuild(Properties.forceRebuild)
-        if (!Properties.forceRebuild) {
-            System.setProperty("kotlin.incremental.compilation", "true")
-        }
-        scopes.add(builder.addAllTargetId(listOf(Properties.moduleName)).build())
-    }
-
-    if (Properties.parallel.toBoolean()) {
-        System.setProperty("compile.parallel", "true")
-    }
-
     val jdkTable = File(Properties.jdkTable).readLines().associate {
         val (name, path) = it.split("=")
         name to path
@@ -57,23 +43,27 @@ fun main() {
             readModulesFromReleaseFile(model, sdkName, jdkHomePath ?: currentJdk)
         }
 
-    runBuild(model, scopes, Properties.moduleName)
+    runBuild(model)
 }
 
-private fun runBuild(
-    model: JpsModel,
-    scopes: MutableList<CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope>,
-    mainModule: String
-) {
+private fun runBuild(model: JpsModel) {
     var exitCode = 0
     try {
-        Standalone.runBuild({ model }, File(Properties.dataStorageRoot), { msg ->
-            println(msg)
-            if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
-                exitCode = 1
-            }
-        }, scopes, true)
-        saveRuntimeClasspath(model, mainModule)
+        Standalone.runBuild(
+            { model },
+            File(Properties.dataStorageRoot),
+            Properties.forceRebuild,
+            setOf(Properties.moduleName),
+            false,
+            emptyList(),
+            Properties.includeTests.toBoolean(),
+            { msg ->
+                println(msg)
+                if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
+                    exitCode = 1
+                }
+            })
+        saveRuntimeClasspath(model, Properties.moduleName)
     } catch (t: Throwable) {
         t.printStackTrace()
         exitCode = 1

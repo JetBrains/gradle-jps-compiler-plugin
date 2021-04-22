@@ -11,7 +11,9 @@ object Properties {
 
     val moduleName by Properties
 
-    private val incremental by Properties
+    val incremental by Properties
+
+    val includeTests by Properties
 
     val parallel by Properties
 
