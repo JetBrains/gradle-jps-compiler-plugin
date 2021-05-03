@@ -11,7 +11,7 @@ open class JpsCompile : DefaultTask() {
     companion object {
         const val PROPERTY_PREFIX = "build"
         const val DEFAULT_JPS_WRAPPER_VERSION = "0.6"
-        const val DEFAULT_JPS_VERSION = "2021.1"
+        const val DEFAULT_JPS_VERSION = "2021.1.1"
     }
 
     init {
