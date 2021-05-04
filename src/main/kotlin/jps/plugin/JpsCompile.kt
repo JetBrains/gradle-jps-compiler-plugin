@@ -63,7 +63,7 @@ open class JpsCompile : DefaultTask() {
     fun compile() {
         val jpsWrapper = jpsWrapper ?: project.downloadJpsWrapper(jpsWrapperVersion)
         val jpsStandaloneDirectory = project.downloadJpsStandalone(jpsVersion)
-        val jpsClasspath = project.fileTree(jpsStandaloneDirectory).files
+        val jpsClasspath = project.file(jpsStandaloneDirectory).listFiles()?.toList() ?: emptyList()
         val kotlinDirectory = kotlinVersion?.let { pluginVersion ->
             val channel = pluginVersion.substringAfter(":", "")
             val version = pluginVersion.substringBefore(":")
