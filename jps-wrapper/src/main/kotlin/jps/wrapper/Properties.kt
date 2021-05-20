@@ -15,6 +15,8 @@ object Properties {
 
     val includeTests by Properties
 
+    val withProgress by Properties
+
     val parallel by Properties
 
     val forceRebuild = !incremental.toBoolean()

@@ -5,6 +5,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.io.URLUtil.*
 import org.jetbrains.jps.build.Standalone
 import org.jetbrains.jps.incremental.messages.BuildMessage
+import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.model.JpsElementFactory
 import org.jetbrains.jps.model.JpsGlobal
 import org.jetbrains.jps.model.JpsModel
@@ -55,6 +56,7 @@ fun main() {
 
 private fun runBuild(model: JpsModel) {
     var exitCode = 0
+    val withProgress = Properties.withProgress.toBoolean()
     try {
         Standalone.runBuild(
             { model },
@@ -65,9 +67,14 @@ private fun runBuild(model: JpsModel) {
             emptyList(),
             Properties.includeTests.toBoolean(),
             { msg ->
-                println(msg)
-                if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
-                    exitCode = 1
+                if (withProgress && msg is ProgressMessage) {
+                    println("[Progress = ${msg.done}]:$msg")
+                }
+                else {
+                    println(msg)
+                    if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
+                        exitCode = 1
+                    }
                 }
             })
         saveRuntimeClasspath(model, Properties.moduleName)

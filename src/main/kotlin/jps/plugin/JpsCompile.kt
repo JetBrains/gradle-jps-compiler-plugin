@@ -10,7 +10,7 @@ import java.nio.file.Files
 open class JpsCompile : DefaultTask() {
     companion object {
         const val PROPERTY_PREFIX = "build"
-        const val DEFAULT_JPS_WRAPPER_VERSION = "0.6"
+        const val DEFAULT_JPS_WRAPPER_VERSION = "0.7"
         const val DEFAULT_JPS_VERSION = "2021.1.1"
     }
 
@@ -41,6 +41,9 @@ open class JpsCompile : DefaultTask() {
 
     @Input
     var parallel: Boolean = true
+
+    @Input
+    var withProgress: Boolean = false
 
     @Optional
     @Input
@@ -94,8 +97,8 @@ open class JpsCompile : DefaultTask() {
 
             listOf(
                 JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
-                JpsCompile::includeTests,
-                JpsCompile::incremental, JpsCompile::parallel, JpsCompile::jdkTable, JpsCompile::outputPath
+                JpsCompile::includeTests, JpsCompile::incremental, JpsCompile::parallel, JpsCompile::withProgress,
+                JpsCompile::jdkTable, JpsCompile::outputPath
             ).forEach { property ->
                 systemProperty(property.name.withPrefix(), property.get(this@JpsCompile)?.toString())
             }
