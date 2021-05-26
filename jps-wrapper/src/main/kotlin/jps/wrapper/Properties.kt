@@ -23,7 +23,7 @@ object Properties {
 
     val classpathOutputFilePath by Properties
 
-    val jdkTable by Properties
+    val jdkTable = System.getProperty("build.jdkTable")
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): String =
             System.getProperty("build.${property.name}") ?: error("Property ${property.name} not found")

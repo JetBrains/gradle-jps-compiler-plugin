@@ -25,10 +25,17 @@ fun main() {
     System.setProperty("compile.parallel", Properties.parallel)
 
     val model = initializeModel()
-    val jdkTable = File(Properties.jdkTable).readLines().associate {
-        val (name, path) = it.split("=")
-        name to path
-    }
+    val jdkTable = Properties.jdkTable?.let { jdkTable ->
+        val file = File(jdkTable)
+        if (file.exists()) {
+            file.readLines().associate {
+                val (name, path) = it.split("=")
+                name to path
+            }
+        } else {
+            null
+        }
+    } ?: emptyMap()
 
     val currentJdk = getCurrentJdk()
     model.project.modules.mapNotNull { it.getSdkReference(JpsJavaSdkType.INSTANCE)?.sdkName }.distinct()
