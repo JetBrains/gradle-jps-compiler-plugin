@@ -13,6 +13,8 @@ object Properties {
 
     val incremental by Properties
 
+    val includeRuntimeDependencies by Properties
+
     val includeTests by Properties
 
     val withProgress by Properties

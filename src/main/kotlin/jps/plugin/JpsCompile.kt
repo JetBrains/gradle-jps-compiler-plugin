@@ -37,6 +37,9 @@ open class JpsCompile : DefaultTask() {
     var incremental: Boolean = true
 
     @Input
+    var includeRuntimeDependencies: Boolean = true
+
+    @Input
     var includeTests: Boolean = true
 
     @Input
@@ -102,8 +105,8 @@ open class JpsCompile : DefaultTask() {
 
             listOf(
                 JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
-                JpsCompile::includeTests, JpsCompile::incremental, JpsCompile::parallel, JpsCompile::withProgress,
-                JpsCompile::jdkTable, JpsCompile::outputPath
+                JpsCompile::includeTests, JpsCompile::includeRuntimeDependencies, JpsCompile::incremental,
+                JpsCompile::parallel, JpsCompile::withProgress, JpsCompile::jdkTable, JpsCompile::outputPath
             ).forEach { property ->
                 systemProperty(property.name.withPrefix(), property.get(this@JpsCompile)?.toString())
             }

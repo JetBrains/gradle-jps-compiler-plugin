@@ -14,6 +14,7 @@ import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import org.jetbrains.jps.model.library.JpsOrderRootType
 import org.jetbrains.jps.model.module.JpsLibraryDependency
+import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService
 import org.jetbrains.jps.model.serialization.JpsProjectLoader
 import java.io.File
@@ -58,26 +59,41 @@ private fun runBuild(model: JpsModel) {
     var exitCode = 0
     val withProgress = Properties.withProgress.toBoolean()
     try {
+        val mainJpsModule = model.project.modules.find { module -> module.name == Properties.moduleName }
+            ?: error("Module ${Properties.moduleName} not found.")
+
+        val modulesToBuild = mutableSetOf(Properties.moduleName)
+        if (Properties.includeRuntimeDependencies.toBoolean()) {
+            val dependenciesEnumerator = JpsJavaExtensionService.dependencies(mainJpsModule)
+                .recursively()
+                .withoutLibraries()
+                .withoutSdk()
+                .includedIn(JpsJavaClasspathKind.PRODUCTION_RUNTIME)
+            if (!Properties.includeTests.toBoolean()) {
+                dependenciesEnumerator.productionOnly()
+            }
+            dependenciesEnumerator.processModules { module -> modulesToBuild.add(module.name) }
+        }
+
         Standalone.runBuild(
             { model },
             File(Properties.dataStorageRoot),
             Properties.forceRebuild,
-            setOf(Properties.moduleName),
+            modulesToBuild,
             false,
             emptyList(),
             Properties.includeTests.toBoolean(),
             { msg ->
                 if (withProgress && msg is ProgressMessage) {
                     println("[Progress = ${msg.done}]:$msg")
-                }
-                else {
+                } else {
                     println(msg)
                     if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
                         exitCode = 1
                     }
                 }
             })
-        saveRuntimeClasspath(model, Properties.moduleName)
+        saveRuntimeClasspath(mainJpsModule)
     } catch (t: Throwable) {
         t.printStackTrace()
         exitCode = 1
@@ -86,8 +102,7 @@ private fun runBuild(model: JpsModel) {
     }
 }
 
-private fun saveRuntimeClasspath(model: JpsModel, mainModule: String) {
-    val mainJpsModule = model.project.modules.find { it.name == mainModule } ?: error("Module $mainModule not found.")
+private fun saveRuntimeClasspath(mainJpsModule: JpsModule) {
     val enumerator = JpsJavaExtensionService.dependencies(mainJpsModule)
         .recursively()
         .withoutSdk()
@@ -115,7 +130,8 @@ private fun initializeModel(): JpsModel {
 
     val pathVariables = JpsModelSerializationDataService.computeAllPathVariables(model.global)
     JpsProjectLoader.loadProject(model.project, pathVariables, Properties.projectPath)
-    JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project).outputUrl = "file://${Properties.outputPath}/out"
+    JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project).outputUrl =
+        "file://${Properties.outputPath}/out"
     return model
 }
 
