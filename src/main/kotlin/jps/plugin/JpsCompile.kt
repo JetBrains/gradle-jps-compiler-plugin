@@ -57,6 +57,10 @@ open class JpsCompile : DefaultTask() {
     @Input
     var systemProperties: Map<String, String> = emptyMap()
 
+    @Optional
+    @Input
+    var jvmArgs: List<String> = emptyList()
+
     @Input
     var outputPath: String = "${project.buildDir}/jps"
 
@@ -91,6 +95,7 @@ open class JpsCompile : DefaultTask() {
         jdkTable.writeText(jdkTableContent.map { (k, v) -> "$k=$v" }.joinToString("\n"))
 
         val extraProperties = systemProperties
+        val extraJvmArgs = jvmArgs
         project.javaexec {
             classpath = project.files(jpsWrapper, jpsClasspath, kotlinClasspath)
             main = "jps.wrapper.MainKt"
@@ -107,6 +112,7 @@ open class JpsCompile : DefaultTask() {
             kotlinDirectory?.let {
                 systemProperty("kotlinHome".withPrefix(), kotlinDirectory)
             }
+            jvmArgs(extraJvmArgs)
         }
     }
 
