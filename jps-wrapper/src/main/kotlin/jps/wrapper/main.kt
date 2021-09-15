@@ -106,7 +106,12 @@ private fun saveRuntimeClasspath(mainJpsModule: JpsModule) {
     val enumerator = JpsJavaExtensionService.dependencies(mainJpsModule)
         .recursively()
         .withoutSdk()
-        .includedIn(JpsJavaClasspathKind.PRODUCTION_RUNTIME)
+
+    if (Properties.includeTests.toBoolean()) {
+        enumerator.includedIn(JpsJavaClasspathKind.TEST_RUNTIME)
+    } else {
+        enumerator.includedIn(JpsJavaClasspathKind.PRODUCTION_RUNTIME)
+    }
 
     val m2Deps = enumerator.libraries
         .flatMapTo(mutableSetOf()) { library -> library.getFiles(JpsOrderRootType.COMPILED) }
