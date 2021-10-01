@@ -119,7 +119,7 @@ private fun saveRuntimeClasspath(mainJpsModule: JpsModule) {
 
     val compilationOutputs = enumerator.satisfying { it !is JpsLibraryDependency }.classes().roots
 
-    File(Properties.classpathOutputFilePath).writeText((compilationOutputs + m2Deps).joinToString(":"))
+    File(Properties.classpathOutputFilePath).writeText((compilationOutputs + m2Deps).joinToString(File.pathSeparator))
 }
 
 private fun initializeModel(): JpsModel {
