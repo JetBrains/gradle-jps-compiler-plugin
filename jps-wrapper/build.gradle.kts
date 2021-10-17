@@ -3,9 +3,9 @@ plugins {
     `maven-publish`
 }
 
-val jpsVersion = "211.6693.111"
+val jpsVersion = "211.7628.21"
 
-project.version = "0.10"
+project.version = "0.11"
 
 repositories {
     maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")

@@ -22,7 +22,7 @@ import kotlin.system.exitProcess
 
 fun main() {
     System.setProperty("jps.use.default.file.logging", "false")
-    System.setProperty("build.dataStorageRoot", "${Properties.outputPath}/cache")
+    System.setProperty("build.dataStorageRoot", Properties.dataStorageRoot)
     System.setProperty("kotlin.incremental.compilation", Properties.incremental)
     System.setProperty("compile.parallel", Properties.parallel)
 
