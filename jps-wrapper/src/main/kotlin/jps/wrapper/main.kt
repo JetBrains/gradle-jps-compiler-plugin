@@ -55,6 +55,27 @@ fun main() {
     runBuild(model)
 }
 
+private fun traverseDependenciesRecursively(module: JpsModule, modulesToBuild: MutableSet<String>) {
+    listOfNotNull(
+        dependencyEnumerator(module, JpsJavaClasspathKind.PRODUCTION_COMPILE),
+        dependencyEnumerator(module, JpsJavaClasspathKind.PRODUCTION_RUNTIME),
+        dependencyEnumerator(module, JpsJavaClasspathKind.TEST_RUNTIME).takeIf { Properties.includeTests.toBoolean() },
+        dependencyEnumerator(module, JpsJavaClasspathKind.TEST_COMPILE).takeIf { Properties.includeTests.toBoolean() },
+    ).forEach {
+        it.processModules { dependency ->
+            if (modulesToBuild.add(dependency.name)) {
+                traverseDependenciesRecursively(dependency, modulesToBuild)
+            }
+        }
+    }
+}
+
+private fun dependencyEnumerator(module: JpsModule, javaClasspathKind: JpsJavaClasspathKind) =
+    JpsJavaExtensionService.dependencies(module)
+        .withoutLibraries()
+        .withoutSdk()
+        .includedIn(javaClasspathKind)
+
 private fun runBuild(model: JpsModel) {
     var exitCode = 0
     val withProgress = Properties.withProgress.toBoolean()
@@ -63,16 +84,9 @@ private fun runBuild(model: JpsModel) {
             ?: error("Module ${Properties.moduleName} not found.")
 
         val modulesToBuild = mutableSetOf(Properties.moduleName)
+
         if (Properties.includeRuntimeDependencies.toBoolean()) {
-            val dependenciesEnumerator = JpsJavaExtensionService.dependencies(mainJpsModule)
-                .recursively()
-                .withoutLibraries()
-                .withoutSdk()
-                .includedIn(JpsJavaClasspathKind.PRODUCTION_RUNTIME)
-            if (!Properties.includeTests.toBoolean()) {
-                dependenciesEnumerator.productionOnly()
-            }
-            dependenciesEnumerator.processModules { module -> modulesToBuild.add(module.name) }
+            traverseDependenciesRecursively(mainJpsModule, modulesToBuild)
         }
 
         Standalone.runBuild(
