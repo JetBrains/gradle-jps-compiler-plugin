@@ -10,6 +10,7 @@ import org.jetbrains.jps.model.JpsElementFactory
 import org.jetbrains.jps.model.JpsGlobal
 import org.jetbrains.jps.model.JpsModel
 import org.jetbrains.jps.model.java.JpsJavaClasspathKind
+import org.jetbrains.jps.model.java.JpsJavaDependenciesEnumerator
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import org.jetbrains.jps.model.library.JpsOrderRootType
@@ -18,11 +19,17 @@ import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService
 import org.jetbrains.jps.model.serialization.JpsProjectLoader
 import java.io.File
+import kotlin.io.path.Path
 import kotlin.system.exitProcess
+
+
+private const val dataStorageRootKey = "build.dataStorageRoot"
 
 fun main() {
     System.setProperty("jps.use.default.file.logging", "false")
-    System.setProperty("build.dataStorageRoot", Properties.dataStorageRoot)
+    if (System.getProperty(dataStorageRootKey) == null) {
+        System.setProperty(dataStorageRootKey, File(Properties.outputPath).toPath().resolve("cache").toString())
+    }
     System.setProperty("kotlin.incremental.compilation", Properties.incremental)
     System.setProperty("compile.parallel", Properties.parallel)
 
@@ -70,7 +77,7 @@ private fun traverseDependenciesRecursively(module: JpsModule, modulesToBuild: M
     }
 }
 
-private fun dependencyEnumerator(module: JpsModule, javaClasspathKind: JpsJavaClasspathKind) =
+private fun dependencyEnumerator(module: JpsModule, javaClasspathKind: JpsJavaClasspathKind): JpsJavaDependenciesEnumerator =
     JpsJavaExtensionService.dependencies(module)
         .withoutLibraries()
         .withoutSdk()
