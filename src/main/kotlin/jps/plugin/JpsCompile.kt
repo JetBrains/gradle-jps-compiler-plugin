@@ -10,7 +10,7 @@ import java.nio.file.Files
 open class JpsCompile : DefaultTask() {
     companion object {
         const val PROPERTY_PREFIX = "build"
-        const val DEFAULT_JPS_WRAPPER_VERSION = "0.13"
+        const val DEFAULT_JPS_WRAPPER_VERSION = "0.14"
         const val DEFAULT_JPS_VERSION = "2021.2.1"
     }
 
@@ -65,7 +65,7 @@ open class JpsCompile : DefaultTask() {
     var jvmArgs: List<String> = emptyList()
 
     @Input
-    var outputPath: String = "${project.buildDir}/jps"
+    var outputPath: String = "${project.buildDir}/jps/out"
 
     private val jdkTable = File(project.buildDir, "jdkTable.txt")
 
