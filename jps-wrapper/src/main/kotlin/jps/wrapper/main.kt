@@ -19,17 +19,19 @@ import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService
 import org.jetbrains.jps.model.serialization.JpsProjectLoader
 import java.io.File
-import kotlin.io.path.Path
+import java.nio.file.Paths
 import kotlin.system.exitProcess
-
-
-private const val dataStorageRootKey = "build.dataStorageRoot"
 
 fun main() {
     System.setProperty("jps.use.default.file.logging", "false")
-    if (System.getProperty(dataStorageRootKey) == null) {
-        System.setProperty(dataStorageRootKey, File(Properties.outputPath).toPath().resolve("cache").toString())
+    val outputPath = Properties.outputPath
+    if (Properties.dataStorageRoot == null) {
+        if (outputPath == null) {
+            error("Either `outputPath` or `dataStorageRoot` must be set")
+        }
+        Properties.dataStorageRoot = Paths.get(outputPath, "cache").toString()
     }
+
     System.setProperty("kotlin.incremental.compilation", Properties.incremental)
     System.setProperty("compile.parallel", Properties.parallel)
 
@@ -47,7 +49,8 @@ fun main() {
     } ?: emptyMap()
 
     val currentJdk = getCurrentJdk()
-    model.project.modules.mapNotNull { it.getSdkReference(JpsJavaSdkType.INSTANCE)?.sdkName }.distinct()
+    model.project.modules
+        .mapNotNull { it.getSdkReference(JpsJavaSdkType.INSTANCE)?.sdkName }.distinct()
         .forEach { sdkName ->
             val jdkHomePath = jdkTable[sdkName]
             if (jdkHomePath == null) {
@@ -77,7 +80,10 @@ private fun traverseDependenciesRecursively(module: JpsModule, modulesToBuild: M
     }
 }
 
-private fun dependencyEnumerator(module: JpsModule, javaClasspathKind: JpsJavaClasspathKind): JpsJavaDependenciesEnumerator =
+private fun dependencyEnumerator(
+    module: JpsModule,
+    javaClasspathKind: JpsJavaClasspathKind
+): JpsJavaDependenciesEnumerator =
     JpsJavaExtensionService.dependencies(module)
         .withoutLibraries()
         .withoutSdk()
@@ -98,7 +104,7 @@ private fun runBuild(model: JpsModel) {
 
         Standalone.runBuild(
             { model },
-            File(Properties.dataStorageRoot),
+            File(Properties.dataStorageRoot!!),
             Properties.forceRebuild,
             modulesToBuild,
             false,
@@ -134,13 +140,13 @@ private fun saveRuntimeClasspath(mainJpsModule: JpsModule) {
         enumerator.includedIn(JpsJavaClasspathKind.PRODUCTION_RUNTIME)
     }
 
-    val m2Deps = enumerator.libraries
+    val m2Dependencies = enumerator.libraries
         .flatMapTo(mutableSetOf()) { library -> library.getFiles(JpsOrderRootType.COMPILED) }
         .filter { it.name.endsWith(".jar") }
 
     val compilationOutputs = enumerator.satisfying { it !is JpsLibraryDependency }.classes().roots
 
-    File(Properties.classpathOutputFilePath).writeText((compilationOutputs + m2Deps).joinToString(File.pathSeparator))
+    File(Properties.classpathOutputFilePath).writeText((compilationOutputs + m2Dependencies).joinToString(File.pathSeparator))
 }
 
 private fun initializeModel(): JpsModel {
@@ -157,7 +163,7 @@ private fun initializeModel(): JpsModel {
     val pathVariables = JpsModelSerializationDataService.computeAllPathVariables(model.global)
     JpsProjectLoader.loadProject(model.project, pathVariables, Properties.projectPath)
     JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project).outputUrl =
-        "file://${Properties.outputPath}"
+        Properties.outputPath?.let { "file://$it" }
     return model
 }
 

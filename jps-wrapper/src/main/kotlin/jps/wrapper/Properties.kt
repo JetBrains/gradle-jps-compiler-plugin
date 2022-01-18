@@ -3,32 +3,51 @@ package jps.wrapper
 import kotlin.reflect.KProperty
 
 object Properties {
-    val kotlinHome by Properties
+    val kotlinHome by NotNullDelegate
 
-    val projectPath by Properties
+    val projectPath by NotNullDelegate
 
-    val outputPath by Properties
+    val outputPath by NullableDelegate
 
-    val moduleName by Properties
+    val moduleName by NotNullDelegate
 
-    val incremental by Properties
+    val incremental by NotNullDelegate
 
-    val includeRuntimeDependencies by Properties
+    val includeRuntimeDependencies by NotNullDelegate
 
-    val includeTests by Properties
+    val includeTests by NotNullDelegate
 
-    val withProgress by Properties
+    val withProgress by NotNullDelegate
 
-    val parallel by Properties
+    val parallel by NotNullDelegate
 
     val forceRebuild = !incremental.toBoolean()
 
-    val dataStorageRoot by Properties
+    var dataStorageRoot by NullableDelegate
 
-    val classpathOutputFilePath by Properties
+    val classpathOutputFilePath by NotNullDelegate
 
-    val jdkTable = System.getProperty("build.jdkTable")
+    val jdkTable by NullableDelegate
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): String =
-            System.getProperty("build.${property.name}") ?: error("Property ${property.name} not found")
+    open class Delegate {
+        open operator fun getValue(thisRef: Any?, property: KProperty<*>): String? {
+            return System.getProperty("build.${property.name}")
+        }
+
+        open operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String?) {
+            if (value != null) {
+                System.setProperty("build.${property.name}", value)
+            } else {
+                System.clearProperty("build.${property.name}")
+            }
+        }
+    }
+
+    object NullableDelegate : Delegate()
+
+    object NotNullDelegate : Delegate() {
+        override operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
+            return super.getValue(thisRef, property) ?: error("Property ${property.name} not found")
+        }
+    }
 }
