@@ -9,7 +9,7 @@ object Properties {
 
     val outputPath by NullableDelegate
 
-    val moduleName by NotNullDelegate
+    val moduleName by NullableDelegate
 
     val incremental by NotNullDelegate
 

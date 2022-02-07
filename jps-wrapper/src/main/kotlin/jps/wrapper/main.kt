@@ -93,12 +93,18 @@ private fun runBuild(model: JpsModel) {
     var exitCode = 0
     val withProgress = Properties.withProgress.toBoolean()
     try {
-        val mainJpsModule = model.project.modules.find { module -> module.name == Properties.moduleName }
-            ?: error("Module ${Properties.moduleName} not found.")
+        val moduleName = Properties.moduleName
+        val mainJpsModule =
+            if (moduleName != null)
+                model.project.modules.find { module -> module.name == moduleName } ?: error("Module $moduleName not found.")
+            else
+                null
 
-        val modulesToBuild = mutableSetOf(Properties.moduleName)
+        val modulesToBuild =
+            if (moduleName != null) mutableSetOf(moduleName)
+            else model.project.modules.mapTo(mutableSetOf()) { it.name }
 
-        if (Properties.includeRuntimeDependencies.toBoolean()) {
+        if (mainJpsModule != null && Properties.includeRuntimeDependencies.toBoolean()) {
             traverseDependenciesRecursively(mainJpsModule, modulesToBuild)
         }
 
@@ -120,7 +126,10 @@ private fun runBuild(model: JpsModel) {
                     }
                 }
             })
-        saveRuntimeClasspath(mainJpsModule)
+
+        if (mainJpsModule != null) {
+            saveRuntimeClasspath(mainJpsModule)
+        }
     } catch (t: Throwable) {
         t.printStackTrace()
         exitCode = 1
