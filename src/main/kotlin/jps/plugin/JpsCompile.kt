@@ -10,8 +10,8 @@ import java.nio.file.Files
 open class JpsCompile : DefaultTask() {
     companion object {
         const val PROPERTY_PREFIX = "build"
-        const val DEFAULT_JPS_WRAPPER_VERSION = "0.16"
-        const val DEFAULT_JPS_VERSION = "2021.2.1"
+        const val DEFAULT_JPS_WRAPPER_VERSION = "0.17"
+        const val DEFAULT_JPS_VERSION = "2021.3"
     }
 
     init {
@@ -75,23 +75,11 @@ open class JpsCompile : DefaultTask() {
         val jpsStandaloneDirectory = project.downloadJpsStandalone(jpsVersion)
         val jpsClasspath = project.file(jpsStandaloneDirectory).listFiles()?.toList() ?: emptyList()
         val kotlinDirectory = kotlinVersion?.let { pluginVersion ->
-            val channel = pluginVersion.substringAfter(":", "")
-            val version = pluginVersion.substringBefore(":")
-            project.downloadKotlin(version, channel)
+            project.downloadKotlin(pluginVersion)
         }
-        val kotlinClasspath = kotlinDirectory?.let {
-            project.fileTree("$it") {
-                include(
-                    listOf(
-                        "lib/jps/kotlin-jps-plugin.jar",
-                        "lib/kotlin-plugin.jar",
-                        "lib/kotlin-reflect.jar",
-                        "lib/kotlin-common.jar",
-                        "kotlinc/lib/kotlin-stdlib.jar"
-                    )
-                )
-            }.files
-        } ?: emptySet()
+        val kotlinJpsPlugin = kotlinVersion?.let { pluginVersion ->
+            project.downloadKotlinJpsPlugin(pluginVersion)
+        }
 
         val jdkTableContent = project.extensions.findByType(JdkTableExtension::class)?.jdkTable ?: emptyMap()
         project.buildDir.mkdirs()
@@ -100,7 +88,7 @@ open class JpsCompile : DefaultTask() {
         val extraProperties = systemProperties
         val extraJvmArgs = jvmArgs
         project.javaexec {
-            classpath = project.files(jpsWrapper, jpsClasspath, kotlinClasspath)
+            classpath = project.files(jpsWrapper, jpsClasspath, kotlinJpsPlugin)
             main = "jps.wrapper.MainKt"
 
             listOf(

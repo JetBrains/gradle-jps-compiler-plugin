@@ -3,7 +3,7 @@ package jps.wrapper
 import kotlin.reflect.KProperty
 
 object Properties {
-    val kotlinHome by NotNullDelegate
+    val kotlinHome by NullableDelegate
 
     val projectPath by NotNullDelegate
 

@@ -5,8 +5,8 @@ import org.gradle.kotlin.dsl.maven
 import java.io.File
 import java.util.regex.Pattern
 
-fun Project.unzip(zipFile: File, cacheDirectory: File): File {
-    val targetDirectory = File(cacheDirectory, zipFile.name.removeSuffix(".zip"))
+fun Project.unzip(zipFile: File, cacheDirectory: File, extension: String = ".zip"): File {
+    val targetDirectory = File(cacheDirectory, zipFile.name.removeSuffix(extension))
     val markerFile = File(targetDirectory, "markerFile")
     if (markerFile.exists()) {
         return targetDirectory
@@ -26,13 +26,19 @@ fun Project.unzip(zipFile: File, cacheDirectory: File): File {
     return targetDirectory
 }
 
-fun Project.downloadKotlin(version: String, channel: String): File {
-    val groupId = if (channel.isEmpty()) "com.jetbrains.plugins" else "${channel}.com.jetbrains.plugins"
+fun Project.downloadKotlin(version: String): File {
     val kotlinZip = downloadDependency(
-        repositoryUrl = "https://cache-redirector.jetbrains.com/plugins.jetbrains.com/maven",
-        dependencyNotation = "$groupId:org.jetbrains.kotlin:$version@zip"
+        repositoryUrl = "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies",
+        dependencyNotation = "org.jetbrains.kotlin:kotlin-dist-for-ide:$version@jar"
     )
-    return project.unzip(kotlinZip, kotlinZip.parentFile).resolve("Kotlin")
+    return project.unzip(kotlinZip, kotlinZip.parentFile, ".jar")
+}
+
+fun Project.downloadKotlinJpsPlugin(version: String): File {
+    return downloadDependency(
+        repositoryUrl = "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies",
+        dependencyNotation = "org.jetbrains.kotlin:kotlin-jps-plugin-classpath:$version@jar"
+    )
 }
 
 fun Project.downloadJpsWrapper(version: String): File {

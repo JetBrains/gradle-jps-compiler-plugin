@@ -32,7 +32,12 @@ fun main() {
         Properties.dataStorageRoot = Paths.get(outputPath, "cache").toString()
     }
 
-    System.setProperty("kotlin.incremental.compilation", Properties.incremental)
+    val kotlinHome = Properties.kotlinHome
+    if (kotlinHome != null) {
+        System.setProperty("kotlin.incremental.compilation", Properties.incremental)
+        System.setProperty("jps.kotlin.home", kotlinHome)
+    }
+
     System.setProperty("compile.parallel", Properties.parallel)
 
     val model = initializeModel()
@@ -96,7 +101,8 @@ private fun runBuild(model: JpsModel) {
         val moduleName = Properties.moduleName
         val mainJpsModule =
             if (moduleName != null)
-                model.project.modules.find { module -> module.name == moduleName } ?: error("Module $moduleName not found.")
+                model.project.modules.find { module -> module.name == moduleName }
+                    ?: error("Module $moduleName not found.")
             else
                 null
 
@@ -163,7 +169,11 @@ private fun initializeModel(): JpsModel {
 
     val pathVariablesConfiguration =
         JpsModelSerializationDataService.getOrCreatePathVariablesConfiguration(model.global)
-    pathVariablesConfiguration.addPathVariable("KOTLIN_BUNDLED", "${Properties.kotlinHome}/kotlinc")
+
+    val kotlinHome = Properties.kotlinHome
+    if (kotlinHome != null) {
+        pathVariablesConfiguration.addPathVariable("KOTLIN_BUNDLED", kotlinHome)
+    }
     pathVariablesConfiguration.addPathVariable(
         "MAVEN_REPOSITORY",
         File(System.getProperty("user.home"), ".m2/repository").absolutePath
