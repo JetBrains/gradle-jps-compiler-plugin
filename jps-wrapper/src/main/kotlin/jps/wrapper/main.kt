@@ -128,8 +128,8 @@ private fun runBuild(model: JpsModel) {
                     println("[Progress = ${msg.done}]:$msg")
                 } else {
                     println(msg)
-                    errors.add(msg)
                     if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
+                        errors.add(msg)
                         exitCode = 1
                     }
                 }
