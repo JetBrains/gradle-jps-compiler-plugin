@@ -96,6 +96,7 @@ private fun dependencyEnumerator(
 
 private fun runBuild(model: JpsModel) {
     var exitCode = 0
+    val errors = mutableListOf<BuildMessage>()
     val withProgress = Properties.withProgress.toBoolean()
     try {
         val moduleName = Properties.moduleName
@@ -127,6 +128,7 @@ private fun runBuild(model: JpsModel) {
                     println("[Progress = ${msg.done}]:$msg")
                 } else {
                     println(msg)
+                    errors.add(msg)
                     if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
                         exitCode = 1
                     }
@@ -140,6 +142,10 @@ private fun runBuild(model: JpsModel) {
         t.printStackTrace()
         exitCode = 1
     } finally {
+        if (errors.isNotEmpty()) {
+            System.err.println("\n## JPS Errors Summary")
+            errors.forEach { error -> System.err.println(error) }
+        }
         exitProcess(exitCode)
     }
 }
