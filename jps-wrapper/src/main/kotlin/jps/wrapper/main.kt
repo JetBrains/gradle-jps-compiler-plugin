@@ -187,8 +187,10 @@ private fun initializeModel(): JpsModel {
 
     val pathVariables = JpsModelSerializationDataService.computeAllPathVariables(model.global)
     JpsProjectLoader.loadProject(model.project, pathVariables, Properties.projectPath)
-    JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project).outputUrl =
-        Properties.outputPath?.let { "file://$it" }
+    val projectExtension = JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project)
+    if (Properties.outputPath != null) {
+        projectExtension.outputUrl = "file://${Properties.outputPath}"
+    }
     return model
 }
 
