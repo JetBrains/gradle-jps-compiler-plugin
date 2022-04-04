@@ -26,8 +26,7 @@ fun main(args: Array<String>) {
     val jpsModel = jpsModel()
     if (args.contains("buildOnlyClasspathFile")) {
         buildOnlyClasspathFile(jpsModel)
-    }
-    else {
+    } else {
         runBuild(jpsModel)
     }
 }
@@ -107,14 +106,6 @@ private fun dependencyEnumerator(
         .includedIn(javaClasspathKind)
 
 private fun runBuild(model: JpsModel) {
-    val outputPath = Properties.outputPath
-    if (Properties.dataStorageRoot == null) {
-        if (outputPath == null) {
-            error("Either `outputPath` or `dataStorageRoot` must be set")
-        }
-        Properties.dataStorageRoot = Paths.get(outputPath, "cache").toString()
-    }
-
     var exitCode = 0
     val errors = mutableListOf<BuildMessage>()
     val withProgress = Properties.withProgress.toBoolean()
@@ -210,6 +201,13 @@ private fun initializeModel(): JpsModel {
     val projectExtension = JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project)
     if (Properties.outputPath != null) {
         projectExtension.outputUrl = "file://${Properties.outputPath}"
+    }
+    if (Properties.dataStorageRoot == null) {
+        val outputPath = urlToPath(projectExtension.outputUrl)
+        if (outputPath.isEmpty()) {
+            error("Either project `outputPath` or `dataStorageRoot` must be set")
+        }
+        Properties.dataStorageRoot = Paths.get(outputPath, "cache").toString()
     }
     return model
 }
