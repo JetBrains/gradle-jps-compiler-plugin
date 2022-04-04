@@ -22,16 +22,18 @@ import java.io.File
 import java.nio.file.Paths
 import kotlin.system.exitProcess
 
-fun main() {
-    System.setProperty("jps.use.default.file.logging", "false")
-    val outputPath = Properties.outputPath
-    if (Properties.dataStorageRoot == null) {
-        if (outputPath == null) {
-            error("Either `outputPath` or `dataStorageRoot` must be set")
-        }
-        Properties.dataStorageRoot = Paths.get(outputPath, "cache").toString()
+fun main(args: Array<String>) {
+    val jpsModel = jpsModel()
+    if (args.contains("buildOnlyClasspathFile")) {
+        buildOnlyClasspathFile(jpsModel)
     }
+    else {
+        runBuild(jpsModel)
+    }
+}
 
+private fun jpsModel(): JpsModel {
+    System.setProperty("jps.use.default.file.logging", "false")
     val kotlinHome = Properties.kotlinHome
     if (kotlinHome != null) {
         System.setProperty("kotlin.incremental.compilation", Properties.incremental)
@@ -66,8 +68,18 @@ fun main() {
             addJdk(model.global, sdkName, jdkHomePath ?: currentJdk)
             readModulesFromReleaseFile(model, sdkName, jdkHomePath ?: currentJdk)
         }
+    return model
+}
 
-    runBuild(model)
+private fun buildOnlyClasspathFile(model: JpsModel) {
+    val moduleName = Properties.moduleName
+    val mainJpsModule =
+        if (moduleName != null)
+            model.project.modules.find { module -> module.name == moduleName }
+                ?: error("Module $moduleName not found.")
+        else
+            null
+    mainJpsModule?.let { saveRuntimeClasspath(it) }
 }
 
 private fun traverseDependenciesRecursively(module: JpsModule, modulesToBuild: MutableSet<String>) {
@@ -95,6 +107,14 @@ private fun dependencyEnumerator(
         .includedIn(javaClasspathKind)
 
 private fun runBuild(model: JpsModel) {
+    val outputPath = Properties.outputPath
+    if (Properties.dataStorageRoot == null) {
+        if (outputPath == null) {
+            error("Either `outputPath` or `dataStorageRoot` must be set")
+        }
+        Properties.dataStorageRoot = Paths.get(outputPath, "cache").toString()
+    }
+
     var exitCode = 0
     val errors = mutableListOf<BuildMessage>()
     val withProgress = Properties.withProgress.toBoolean()
