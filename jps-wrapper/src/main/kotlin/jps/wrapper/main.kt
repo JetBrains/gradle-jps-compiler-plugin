@@ -71,14 +71,14 @@ private fun jpsModel(): JpsModel {
 }
 
 private fun buildOnlyClasspathFile(model: JpsModel) {
-    val moduleName = Properties.moduleName
-    val mainJpsModule =
-        if (moduleName != null)
-            model.project.modules.find { module -> module.name == moduleName }
-                ?: error("Module $moduleName not found.")
-        else
-            null
-    mainJpsModule?.let { saveRuntimeClasspath(it) }
+    val moduleName = Properties.moduleName ?: return
+    val mainJpsModule = model.project.modules.find { module -> module.name == moduleName }
+        ?: error("Module $moduleName not found.")
+
+    if (Properties.classpathOutputFilePath == null) {
+        error("`classpathOutputFilePath` must be set when `buildOnlyClasspathFile` argument used")
+    }
+    saveRuntimeClasspath(mainJpsModule, File(Properties.classpathOutputFilePath))
 }
 
 private fun traverseDependenciesRecursively(module: JpsModule, modulesToBuild: MutableSet<String>) {
@@ -146,8 +146,8 @@ private fun runBuild(model: JpsModel) {
                 }
             })
 
-        if (mainJpsModule != null) {
-            saveRuntimeClasspath(mainJpsModule)
+        if (mainJpsModule != null && Properties.classpathOutputFilePath != null) {
+            saveRuntimeClasspath(mainJpsModule, File(Properties.classpathOutputFilePath))
         }
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -161,7 +161,7 @@ private fun runBuild(model: JpsModel) {
     }
 }
 
-private fun saveRuntimeClasspath(mainJpsModule: JpsModule) {
+private fun saveRuntimeClasspath(mainJpsModule: JpsModule, classpathOutputFile: File) {
     val enumerator = JpsJavaExtensionService.dependencies(mainJpsModule)
         .recursively()
         .withoutSdk()
@@ -177,8 +177,7 @@ private fun saveRuntimeClasspath(mainJpsModule: JpsModule) {
         .filter { it.name.endsWith(".jar") }
 
     val compilationOutputs = enumerator.satisfying { it !is JpsLibraryDependency }.classes().roots
-
-    File(Properties.classpathOutputFilePath).writeText((compilationOutputs + m2Dependencies).joinToString(File.pathSeparator))
+    classpathOutputFile.writeText((compilationOutputs + m2Dependencies).joinToString(File.pathSeparator))
 }
 
 private fun initializeModel(): JpsModel {

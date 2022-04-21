@@ -25,7 +25,7 @@ object Properties {
 
     var dataStorageRoot by NullableDelegate
 
-    val classpathOutputFilePath by NotNullDelegate
+    val classpathOutputFilePath by NullableDelegate
 
     val jdkTable by NullableDelegate
 
