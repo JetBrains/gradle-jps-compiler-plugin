@@ -5,7 +5,7 @@ plugins {
 
 val jpsVersion = "221.3598"
 
-project.version = "0.21"
+project.version = "0.22"
 
 repositories {
     maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
