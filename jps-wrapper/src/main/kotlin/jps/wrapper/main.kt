@@ -110,28 +110,17 @@ private fun runBuild(model: JpsModel) {
     val errors = mutableListOf<BuildMessage>()
     val withProgress = Properties.withProgress.toBoolean()
     try {
-        val moduleName = Properties.moduleName
-        val mainJpsModule =
-            if (moduleName != null)
-                model.project.modules.find { module -> module.name == moduleName }
-                    ?: error("Module $moduleName not found.")
-            else
-                null
-
-        val modulesToBuild =
-            if (moduleName != null) mutableSetOf(moduleName)
-            else model.project.modules.mapTo(mutableSetOf()) { it.name }
-
-        if (mainJpsModule != null && Properties.includeRuntimeDependencies.toBoolean()) {
-            traverseDependenciesRecursively(mainJpsModule, modulesToBuild)
+        val mainJpsModule = Properties.moduleName?.let { moduleName ->
+            model.project.modules.find { it.name == moduleName } ?: error("Module $moduleName not found.")
         }
-
+        val modulesToBuild = mainJpsModule?.let { getModulesToBuild(it) } ?: emptySet()
+        val allModules = mainJpsModule == null
         Standalone.runBuild(
             { model },
             File(Properties.dataStorageRoot!!),
             Properties.forceRebuild,
             modulesToBuild,
-            false,
+            allModules,
             emptyList(),
             Properties.includeTests.toBoolean(),
             { msg ->
@@ -159,6 +148,14 @@ private fun runBuild(model: JpsModel) {
         }
         exitProcess(exitCode)
     }
+}
+
+private fun getModulesToBuild(mainJpsModule: JpsModule): Set<String> {
+    val modulesToBuild = mutableSetOf(mainJpsModule.name)
+    if (Properties.includeRuntimeDependencies.toBoolean()) {
+        traverseDependenciesRecursively(mainJpsModule, modulesToBuild)
+    }
+    return modulesToBuild
 }
 
 private fun saveRuntimeClasspath(mainJpsModule: JpsModule, classpathOutputFile: File) {
