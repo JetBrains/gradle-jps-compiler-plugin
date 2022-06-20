@@ -7,6 +7,8 @@ object Properties {
 
     val projectPath by NotNullDelegate
 
+    val projectBasePath by NullableDelegate
+
     val outputPath by NullableDelegate
 
     val moduleName by NullableDelegate

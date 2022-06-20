@@ -17,7 +17,7 @@ import org.jetbrains.jps.model.library.JpsOrderRootType
 import org.jetbrains.jps.model.module.JpsLibraryDependency
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService
-import org.jetbrains.jps.model.serialization.JpsProjectLoader
+import org.jetbrains.jps.model.serialization.JpsPathMapper
 import java.io.File
 import java.nio.file.Paths
 import kotlin.system.exitProcess
@@ -193,7 +193,7 @@ private fun initializeModel(): JpsModel {
     )
 
     val pathVariables = JpsModelSerializationDataService.computeAllPathVariables(model.global)
-    JpsProjectLoader.loadProject(model.project, pathVariables, Properties.projectPath)
+    JpsProjectLoader.loadProject(model.project, pathVariables, JpsPathMapper.IDENTITY, Properties.projectPath, Properties.projectBasePath, false)
     val projectExtension = JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project)
     if (Properties.outputPath != null) {
         projectExtension.outputUrl = "file://${Properties.outputPath}"
