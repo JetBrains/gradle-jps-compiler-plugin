@@ -1,5 +1,6 @@
 package jps.wrapper
 
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.io.URLUtil.*
@@ -32,6 +33,7 @@ fun main(args: Array<String>) {
 }
 
 private fun jpsModel(): JpsModel {
+    PathManager.loadProperties()
     System.setProperty("jps.use.default.file.logging", "false")
     val kotlinHome = Properties.kotlinHome
     if (kotlinHome != null) {
