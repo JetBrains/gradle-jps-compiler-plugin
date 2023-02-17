@@ -1,5 +1,7 @@
 # Gradle JPS Compiler Plugin
 
+![](https://camo.githubusercontent.com/f9a78707625c83e4a02e265758bc2d112701ef06c968c116bd6bf91b1df24cf0/68747470733a2f2f6a622e67672f6261646765732f7465616d2d706c61737469632e737667)
+
 The plugin for Gradle that is able to build JPS-based project.
 
 The plugin doesn't interpret JPS project model and doesn't convert it to gradle. Basically it's an interface for
