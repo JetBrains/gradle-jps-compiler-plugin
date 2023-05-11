@@ -18,6 +18,7 @@ open class JdkTableExtension {
 
     val jdkTable = mutableMapOf<String, String>()
 
+    @Suppress("unused")
     fun jdk(name: String, path: String) {
         jdkTable[name] = path
     }

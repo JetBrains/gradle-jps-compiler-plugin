@@ -1,5 +1,7 @@
 rootProject.name = "jps-compiler-plugin"
-includeBuild("jps-wrapper")
+
+include("jps-wrapper")
+include("jps-gradle-plugin")
 
 pluginManagement {
     repositories {

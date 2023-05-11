@@ -1,18 +1,11 @@
 plugins {
-    `embedded-kotlin`
+    kotlin("jvm")
     `maven-publish`
 }
 
 val jpsVersion = "221.3598"
 
 project.version = "0.24"
-
-repositories {
-    maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
-    maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
-    maven("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
-}
-
 
 dependencies {
     compileOnly("com.jetbrains.intellij.tools:jps-build-standalone:$jpsVersion") {
