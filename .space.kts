@@ -5,24 +5,20 @@
  */
 
 job("Build") {
-    gradlew("openjdk:11", "build")
+    gradlew("openjdk:17", "build")
 }
 
 job("Publish plugin") {
-    gradlew("openjdk:11", "publishPlugins") {
-        env["GRADLE_PUBLISH_KEY"] = Secrets("gradle_plugins_publish_key")
-        env["GRADLE_PUBLISH_SECRET"] = Secrets("gradle_plugins_publish_secret")
-    }
-    startOn {
-        gitPush { enabled = false }
+    startOn {} // disable trigger on push
+
+    gradlew("openjdk:17", "publishPlugins") {
+        env["GRADLE_PUBLISH_KEY"] = "{{ project:gradle_plugins_publish_key }}"
+        env["GRADLE_PUBLISH_SECRET"] = "{{ project:gradle_plugins_publish_secret }}"
     }
 }
 
 job("Publish jps-wrapper") {
-    gradlew("openjdk:11", "publish") {
-        workDir = "jps-wrapper"
-    }
-    startOn {
-        gitPush { enabled = false }
-    }
+    startOn {} // disable trigger on push
+
+    gradlew("openjdk:17", ":jps-wrapper:publish")
 }

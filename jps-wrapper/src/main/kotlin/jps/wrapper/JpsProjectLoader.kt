@@ -493,7 +493,7 @@ class JpsProjectLoader private constructor(
             return expander
         }
 
-        private fun <P : JpsElement?> createModule(
+        private fun <P : JpsElement> createModule(
             name: String,
             moduleRoot: Element,
             loader: JpsModulePropertiesSerializer<P>

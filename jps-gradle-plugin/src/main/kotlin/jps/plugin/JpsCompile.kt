@@ -89,7 +89,7 @@ open class JpsCompile : DefaultTask() {
         val extraJvmArgs = jvmArgs
         project.javaexec {
             classpath = project.files(jpsWrapper, jpsClasspath, kotlinJpsPlugin)
-            main = "jps.wrapper.MainKt"
+            mainClass.set("jps.wrapper.MainKt")
 
             listOf(
                 JpsCompile::moduleName, JpsCompile::projectPath, JpsCompile::classpathOutputFilePath,
