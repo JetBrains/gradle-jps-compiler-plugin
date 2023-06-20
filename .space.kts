@@ -20,5 +20,5 @@ job("Publish plugin") {
 job("Publish jps-wrapper") {
     startOn {} // disable trigger on push
 
-    gradlew("openjdk:11", ":jps-wrapper:publish --info")
+    gradlew("openjdk:11", ":jps-wrapper:publish", "--info")
 }
