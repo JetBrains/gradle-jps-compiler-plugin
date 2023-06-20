@@ -5,7 +5,7 @@ plugins {
 
 val jpsVersion = "221.3598"
 
-project.version = "0.25"
+project.version = "0.26"
 
 dependencies {
     compileOnly("com.jetbrains.intellij.tools:jps-build-standalone:$jpsVersion") {
