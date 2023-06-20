@@ -5,6 +5,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.io.URLUtil.*
 import org.jetbrains.jps.build.Standalone
 import org.jetbrains.jps.incremental.messages.BuildMessage
+import org.jetbrains.jps.incremental.messages.FileGeneratedEvent
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.model.JpsElementFactory
 import org.jetbrains.jps.model.JpsGlobal
@@ -115,6 +116,8 @@ private fun runBuild(model: JpsModel) {
         }
         val modulesToBuild = mainJpsModule?.let { getModulesToBuild(it) } ?: emptySet()
         val allModules = mainJpsModule == null
+        val generatedFilesFilePath = Properties.generatedFilesFilePath
+        val generatedFiles: MutableSet<Pair<String, String>>? = generatedFilesFilePath?.let { LinkedHashSet() }
         Standalone.runBuild(
             { model },
             File(Properties.dataStorageRoot!!),
@@ -124,19 +127,33 @@ private fun runBuild(model: JpsModel) {
             emptyList(),
             Properties.includeTests.toBoolean(),
             { msg ->
-                if (withProgress && msg is ProgressMessage) {
-                    println("[Progress = ${msg.done}]:$msg")
-                } else {
-                    println(msg)
-                    if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
-                        errors.add(msg)
-                        exitCode = 1
+                when {
+                    withProgress && msg is ProgressMessage -> {
+                        println("[Progress = ${msg.done}]:$msg")
+                    }
+                    msg is FileGeneratedEvent -> {
+                        if (generatedFiles != null) {
+                            for (path in msg.paths) {
+                                generatedFiles += path.first to path.second
+                            }
+                        }
+                    }
+                    else -> {
+                        println(msg)
+                        if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {
+                            errors.add(msg)
+                            exitCode = 1
+                        }
                     }
                 }
             })
 
-        if (mainJpsModule != null && Properties.classpathOutputFilePath != null) {
-            saveRuntimeClasspath(mainJpsModule, File(Properties.classpathOutputFilePath))
+        if (generatedFilesFilePath != null && generatedFiles != null) {
+            saveGeneratedFiles(generatedFiles, File(generatedFilesFilePath))
+        }
+        val classpathOutputFilePath = Properties.classpathOutputFilePath
+        if (mainJpsModule != null && classpathOutputFilePath != null) {
+            saveRuntimeClasspath(mainJpsModule, File(classpathOutputFilePath))
         }
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -175,6 +192,13 @@ private fun saveRuntimeClasspath(mainJpsModule: JpsModule, classpathOutputFile: 
 
     val compilationOutputs = enumerator.satisfying { it !is JpsLibraryDependency }.classes().roots
     classpathOutputFile.writeText((compilationOutputs + m2Dependencies).joinToString(File.pathSeparator))
+}
+
+private fun saveGeneratedFiles(generatedFiles: Set<Pair<String, String>>, file: File) {
+    for ((root, relativePath) in generatedFiles) {
+        file.appendText("root:$root\n")
+        file.appendText("path:$relativePath\n")
+    }
 }
 
 private fun initializeModel(): JpsModel {

@@ -29,6 +29,8 @@ object Properties {
 
     val classpathOutputFilePath by NullableDelegate
 
+    val generatedFilesFilePath by NullableDelegate
+
     val jdkTable by NullableDelegate
 
     open class Delegate {
