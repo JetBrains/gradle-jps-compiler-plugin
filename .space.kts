@@ -5,7 +5,7 @@
  */
 
 job("Build") {
-    gradlew("openjdk:17", "build")
+    gradlew("openjdk:11", "build")
 }
 
 job("Publish plugin") {
