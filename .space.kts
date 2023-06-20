@@ -11,7 +11,7 @@ job("Build") {
 job("Publish plugin") {
     startOn {} // disable trigger on push
 
-    gradlew("openjdk:17", "publishPlugins") {
+    gradlew("openjdk:11", "publishPlugins") {
         env["GRADLE_PUBLISH_KEY"] = "{{ project:gradle_plugins_publish_key }}"
         env["GRADLE_PUBLISH_SECRET"] = "{{ project:gradle_plugins_publish_secret }}"
     }
@@ -20,5 +20,5 @@ job("Publish plugin") {
 job("Publish jps-wrapper") {
     startOn {} // disable trigger on push
 
-    gradlew("openjdk:17", ":jps-wrapper:publish")
+    gradlew("openjdk:11", ":jps-wrapper:publish")
 }
