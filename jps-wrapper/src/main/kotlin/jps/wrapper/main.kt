@@ -36,7 +36,6 @@ private fun jpsModel(): JpsModel {
     System.setProperty("jps.use.default.file.logging", "false")
     val kotlinHome = Properties.kotlinHome
     if (kotlinHome != null) {
-        System.setProperty("kotlin.incremental.compilation", Properties.incremental)
         System.setProperty("jps.kotlin.home", kotlinHome)
     }
 
@@ -118,26 +117,31 @@ private fun runBuild(model: JpsModel) {
         val allModules = mainJpsModule == null
         val generatedFilesFilePath = Properties.generatedFilesFilePath
         val generatedFiles: MutableSet<Pair<String, String>>? = generatedFilesFilePath?.let { LinkedHashSet() }
-        Standalone.runBuild(
-            { model },
-            File(Properties.dataStorageRoot!!),
-            Properties.forceRebuild,
-            modulesToBuild,
-            allModules,
-            emptyList(),
-            Properties.includeTests.toBoolean(),
-            { msg ->
-                when {
-                    withProgress && msg is ProgressMessage -> {
-                        println("[Progress = ${msg.done}]:$msg")
+        val filePaths = Properties.filePaths?.run { lines() } ?: emptyList()
+        runBuild(
+            loader = { model },
+            dataStorageRoot = File(Properties.dataStorageRoot!!),
+            modulesSet = modulesToBuild,
+            filePaths = filePaths,
+            forceBuild = Properties.forceRebuild,
+            allModules = allModules,
+            includeTests = Properties.includeTests.toBoolean(),
+            messageHandler = { msg ->
+                when (msg) {
+                    is ProgressMessage -> {
+                        if (withProgress) {
+                            println("[Progress = ${msg.done}]:$msg")
+                        }
                     }
-                    msg is FileGeneratedEvent -> {
+
+                    is FileGeneratedEvent -> {
                         if (generatedFiles != null) {
                             for (path in msg.paths) {
                                 generatedFiles += path.first to path.second
                             }
                         }
                     }
+
                     else -> {
                         println(msg)
                         if (msg.kind == BuildMessage.Kind.ERROR || msg.kind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR) {

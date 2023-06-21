@@ -13,6 +13,8 @@ object Properties {
 
     val moduleName by NullableDelegate
 
+    val filePaths by NullableDelegate
+
     val incremental by NotNullDelegate
 
     val includeRuntimeDependencies by NotNullDelegate
