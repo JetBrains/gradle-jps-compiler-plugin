@@ -1,7 +1,5 @@
 plugins {
-    val kotlinVersion = "1.8.10"
-    `kotlin-dsl`
-    kotlin("jvm") version kotlinVersion apply false
+    conventions.`kotlin-jvm`
 }
 
 allprojects {
@@ -12,10 +10,3 @@ allprojects {
     }
 }
 
-subprojects {
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "11"
-        }
-    }
-}

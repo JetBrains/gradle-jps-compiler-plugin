@@ -1,4 +1,5 @@
 plugins {
+    conventions.`kotlin-jvm`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "1.2.0"
 }

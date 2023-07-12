@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm")
+    conventions.`kotlin-jvm`
     `maven-publish`
 }
 
