@@ -11,7 +11,7 @@ JPS-standalone tool.
 
 ```kotlin
 plugins {
-    id("com.jetbrains.intellij.jps-compiler-plugin") version "0.1.1"
+    id("com.jetbrains.intellij.jps-compiler-plugin") version "0.3.0"
 }
 ```
 
@@ -33,7 +33,7 @@ Available `jpsVersions` are listed
 on [IntelliJ Maven Repository](https://www.jetbrains.com/intellij-repository/releases).
 
 ```kotlin
-val jpsCompilationTask = task<JpsCompile>("jpsCompile") {
+val jpsCompilationTask = tasks.register<JpsCompile>("jpsCompile") {
     moduleName = "my.intellij.project.module.main"
 
     jpsVersion = "212-SNAPSHOT"
@@ -53,7 +53,7 @@ pure `JavaExec` on the compilation results.
 ```kotlin
 task<JavaExec>("run") {
     dependsOn(jpsCompilationTask)
-    classpath({ jpsCompilationTask.outputs.files.singleFile.readText().split(File.pathSeparatorChar) })
+    classpath({ jpsCompile.flatMap { it.classpathOutputFilePath }.get().asFile.readText().split(File.pathSeparatorChar) })
     main = "my.intellij.project.MainKt"
     workingDir(projectDir)
     jvmArgs(
