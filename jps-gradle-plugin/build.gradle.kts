@@ -5,7 +5,7 @@ plugins {
 }
 
 version = "0.3.1"
-group = "gradle.plugin.com.jetbrains.intellij"
+group = "com.jetbrains.intellij"
 
 gradlePlugin {
     plugins {
