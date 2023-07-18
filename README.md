@@ -11,7 +11,7 @@ JPS-standalone tool.
 
 ```kotlin
 plugins {
-    id("com.jetbrains.intellij.jps-compiler-plugin") version "0.3.0"
+    id("com.jetbrains.intellij.jps-compiler-plugin") version "0.3.1"
 }
 ```
 
