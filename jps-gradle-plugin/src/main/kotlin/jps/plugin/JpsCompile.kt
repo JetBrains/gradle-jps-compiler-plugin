@@ -81,6 +81,10 @@ abstract class JpsCompile @Inject constructor(
 
     @Optional
     @Input
+    val environment = objectFactory.mapProperty<String, String>()
+
+    @Optional
+    @Input
     val jvmArgs = objectFactory.listProperty<String>()
 
     @OutputDirectory
@@ -116,6 +120,7 @@ abstract class JpsCompile @Inject constructor(
 
         val extraProperties = systemProperties.orNull
         val extraJvmArgs = jvmArgs.orNull
+        val extraEnvironment = environment.orNull
         execOperations.javaexec {
             classpath = projectLayout.files(jpsWrapper.asFile, jpsClasspath, kotlinJpsPlugin.asFile)
             mainClass.set("jps.wrapper.MainKt")
@@ -135,9 +140,16 @@ abstract class JpsCompile @Inject constructor(
                 systemProperty(name.withPrefix(), value)
             }
 
-            systemProperties(extraProperties)
+            extraEnvironment?.let {
+                environment(it)
+            }
+            extraProperties?.let {
+                systemProperties(it)
+            }
             systemProperty("kotlinHome".withPrefix(), kotlinDirectory)
-            jvmArgs(extraJvmArgs)
+            extraJvmArgs?.let {
+                jvmArgs(it)
+            }
         }
     }
 
