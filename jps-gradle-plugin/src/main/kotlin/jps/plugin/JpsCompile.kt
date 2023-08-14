@@ -94,6 +94,10 @@ abstract class JpsCompile @Inject constructor(
     @Optional
     val jdkTableContent = objectFactory.mapProperty<String, String>()
 
+    @Input
+    @Optional
+    val javaExecutable = objectFactory.property<String>()
+
     init {
         outputs.upToDateWhen { false }
         jpsVersion.convention(DEFAULT_JPS_VERSION)
@@ -121,7 +125,11 @@ abstract class JpsCompile @Inject constructor(
         val extraProperties = systemProperties.orNull
         val extraJvmArgs = jvmArgs.orNull
         val extraEnvironment = environment.orNull
+        val customExecutable = javaExecutable.orNull.takeIf { !it.isNullOrBlank() }
         execOperations.javaexec {
+            customExecutable?.let {
+                executable = it
+            }
             classpath = projectLayout.files(jpsWrapper.asFile, jpsClasspath, kotlinJpsPlugin.asFile)
             mainClass.set("jps.wrapper.MainKt")
 
