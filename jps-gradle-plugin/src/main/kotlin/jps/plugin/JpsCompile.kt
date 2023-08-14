@@ -141,13 +141,16 @@ abstract class JpsCompile @Inject constructor(
             }
 
             extraEnvironment?.let {
+                logger.info("Running with additional environment variables $it")
                 environment(it)
             }
             extraProperties?.let {
+                logger.info("Running with additional system properties $it")
                 systemProperties(it)
             }
             systemProperty("kotlinHome".withPrefix(), kotlinDirectory)
             extraJvmArgs?.let {
+                logger.info("Running with additional JVM arguments $it")
                 jvmArgs(it)
             }
         }
