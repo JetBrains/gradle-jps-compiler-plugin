@@ -87,7 +87,7 @@ abstract class JpsCompile @Inject constructor(
     @Input
     val jvmArgs = objectFactory.listProperty<String>()
 
-    @OutputDirectory
+    @Internal
     val outputPath = objectFactory.directoryProperty()
 
     @Input
