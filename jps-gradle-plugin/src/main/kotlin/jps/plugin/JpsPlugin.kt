@@ -12,7 +12,6 @@ import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.repositories
 import org.gradle.kotlin.dsl.withType
 import java.io.File
-import java.util.regex.Pattern
 import kotlin.collections.set
 
 const val DEFAULT_JPS_WRAPPER_VERSION = "0.24"
@@ -36,8 +35,8 @@ class JpsPlugin : Plugin<Project> {
         val jpsStandaloneConfigurations = project.registerConfigurations(
             jpsVersionConfiguration.jpsVersions,
             "jpsStandalone",
-            { "https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/${intellijRepositoryType(it)}" },
-            { "com.jetbrains.intellij.idea:jps-standalone:$it@zip" },
+            repository = ::findJpsStandaloneRepository,
+            dependencyNotation = { "com.jetbrains.intellij.idea:jps-standalone:$it@zip" },
         )
         val kotlinDistConfigurations = project.registerConfigurations(
             jpsVersionConfiguration.kotlinVersions,
@@ -91,15 +90,25 @@ open class JdkTableExtension {
     }
 }
 
-private val MAJOR_VERSION_PATTERN = Pattern.compile("\\d{4}\\.\\d-SNAPSHOT")
-private fun intellijRepositoryType(version: String): String {
-    return when {
-        version.endsWith("-EAP-SNAPSHOT") || version.endsWith("-EAP-CANDIDATE-SNAPSHOT") || version.endsWith("-CUSTOM-SNAPSHOT") || MAJOR_VERSION_PATTERN.matcher(
-            version
-        ).matches() -> "snapshots"
+private fun findJpsStandaloneRepository(version: String): String {
+    val intellijRepositoryPrefix = "https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/"
 
-        version.endsWith("-SNAPSHOT") -> "nightly"
-        else -> "releases"
+    return when {
+        // Like 233.3956
+        version.matches("\\d{3}\\.\\d+".toRegex()) -> "https://cache-redirector.jetbrains.com/intellij-dependencies"
+
+        // Like 232.8660.142-EAP-SNAPSHOT, 232.9559.10-CUSTOM-SNAPSHOT, 232.8660-EAP-CANDIDATE-SNAPSHOT,
+        version.endsWith("-EAP-SNAPSHOT")
+                || version.endsWith("-EAP-CANDIDATE-SNAPSHOT")
+                || version.endsWith("-CUSTOM-SNAPSHOT") -> "${intellijRepositoryPrefix}snapshots"
+
+        // Like 233-SNAPSHOT, 222-SNAPSHOT, 202.2793-SNAPSHOT
+        version.endsWith("-SNAPSHOT") -> "${intellijRepositoryPrefix}nightly"
+
+        // Like 2022.3, 2022.2.5 or 222.4554.10
+        version.matches("[\\d.]+".toRegex()) -> "${intellijRepositoryPrefix}releases"
+
+        else -> error("Unable to guess repository for provided version $version")
     }
 }
 
