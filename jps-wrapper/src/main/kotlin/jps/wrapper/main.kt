@@ -3,7 +3,7 @@ package jps.wrapper
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.io.URLUtil.*
-import org.jetbrains.jps.build.Standalone
+import org.jetbrains.jps.cmdline.LogSetup
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.FileGeneratedEvent
 import org.jetbrains.jps.incremental.messages.ProgressMessage
@@ -24,6 +24,8 @@ import java.nio.file.Paths
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
+    setupLogging()
+
     val jpsModel = jpsModel()
     if (args.contains("buildOnlyClasspathFile")) {
         buildOnlyClasspathFile(jpsModel)
@@ -33,7 +35,6 @@ fun main(args: Array<String>) {
 }
 
 private fun jpsModel(): JpsModel {
-    System.setProperty("jps.use.default.file.logging", "false")
     val kotlinHome = Properties.kotlinHome
     if (kotlinHome != null) {
         System.setProperty("jps.kotlin.home", kotlinHome)
@@ -282,4 +283,18 @@ private fun getCurrentJdk(): String {
     }
 
     return javaHome
+}
+
+private fun setupLogging() {
+    Properties.buildLogPath.let { logPath ->
+        println("buildLogPath=${logPath}")
+        if (logPath == null) {
+            System.setProperty("jps.use.default.file.logging", "false")
+        }
+        else {
+            System.setProperty("jps.use.default.file.logging", "true")
+            System.setProperty("jps.log.dir", logPath)
+        }
+    }
+    LogSetup.initLoggers()
 }
