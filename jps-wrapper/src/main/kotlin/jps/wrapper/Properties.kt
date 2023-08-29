@@ -28,6 +28,8 @@ object Properties {
     val forceRebuild = !incremental.toBoolean()
 
     var dataStorageRoot by NullableDelegate
+    
+    var buildLogPath by NullableDelegate
 
     val classpathOutputFilePath by NullableDelegate
 
