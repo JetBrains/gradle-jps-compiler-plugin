@@ -88,8 +88,8 @@ abstract class JpsCompile @Inject constructor(
     val jvmArgs = objectFactory.listProperty<String>()
 
     @Optional
-    @InputFile
-    val buildLogPath = objectFactory.fileProperty()
+    @Input
+    val buildLogPath = objectFactory.property<String>()
 
     @Internal
     val outputPath = objectFactory.directoryProperty()
@@ -148,7 +148,7 @@ abstract class JpsCompile @Inject constructor(
                 "withProgress" to withProgress.get().toString(),
                 "jdkTable" to jdkTable.absolutePath,
                 "outputPath" to outputPath.get().asFile.absolutePath,
-                "buildLogPath" to buildLogPath.orNull?.asFile?.absolutePath,
+                "buildLogPath" to buildLogPath.orNull,
             ).forEach { (name, value) ->
                 systemProperty(name.withPrefix(), value)
             }
