@@ -287,11 +287,11 @@ private fun getCurrentJdk(): String {
 
 private fun setupLogging() {
     Properties.buildLogPath.let { logPath ->
-        println("buildLogPath=${logPath}")
-        if (logPath == null) {
+        if (logPath.isNullOrBlank()) {
             System.setProperty("jps.use.default.file.logging", "false")
         }
         else {
+            println("buildLogPath=${logPath}")
             System.setProperty("jps.use.default.file.logging", "true")
             System.setProperty("jps.log.dir", logPath)
             LogSetup.initLoggers()
