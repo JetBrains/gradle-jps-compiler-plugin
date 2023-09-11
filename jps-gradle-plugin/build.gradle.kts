@@ -4,7 +4,7 @@ plugins {
     id("com.gradle.plugin-publish") version "1.2.0"
 }
 
-version = "0.4.3"
+version = "0.4.4"
 group = "gradle.plugin.com.jetbrains.intellij"
 
 gradlePlugin {
