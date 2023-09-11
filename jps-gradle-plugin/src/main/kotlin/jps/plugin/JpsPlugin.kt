@@ -14,7 +14,7 @@ import org.gradle.kotlin.dsl.withType
 import java.io.File
 import kotlin.collections.set
 
-const val DEFAULT_JPS_WRAPPER_VERSION = "0.24"
+const val DEFAULT_JPS_WRAPPER_VERSION = "0.29"
 const val DEFAULT_JPS_VERSION = "2022.1"
 
 @Suppress("unused")
