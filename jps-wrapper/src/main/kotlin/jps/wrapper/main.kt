@@ -294,7 +294,7 @@ private fun setupLogging() {
         else {
             System.setProperty("jps.use.default.file.logging", "true")
             System.setProperty("jps.log.dir", logPath)
+            LogSetup.initLoggers()
         }
     }
-    LogSetup.initLoggers()
 }
