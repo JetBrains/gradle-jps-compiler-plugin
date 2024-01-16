@@ -48,7 +48,7 @@ fun runBuild(
             scopes.add(builder.build())
         }
     }
-    if (modulesSet.isNotEmpty()) {
+    if (modulesSet.isNotEmpty() || allModules) {
         for (type in JavaModuleBuildTargetType.ALL_TYPES) {
             if (includeTests || !type.isTests) {
                 val builder = TargetTypeBuildScope.newBuilder().setTypeId(type.typeId).setForceBuild(forceBuild)

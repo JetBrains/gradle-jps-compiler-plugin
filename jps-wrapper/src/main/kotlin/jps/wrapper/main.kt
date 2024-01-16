@@ -115,10 +115,10 @@ private fun runBuild(model: JpsModel) {
             model.project.modules.find { it.name == moduleName } ?: error("Module $moduleName not found.")
         }
         val modulesToBuild = mainJpsModule?.let { getModulesToBuild(it) } ?: emptySet()
-        val allModules = mainJpsModule == null
         val generatedFilesFilePath = Properties.generatedFilesFilePath
         val generatedFiles: MutableSet<Pair<String, String>>? = generatedFilesFilePath?.let { LinkedHashSet() }
         val filePaths = Properties.filePaths?.run { lines() } ?: emptyList()
+        val allModules = mainJpsModule == null && filePaths.isEmpty()
         runBuild(
             loader = { model },
             dataStorageRoot = File(Properties.dataStorageRoot!!),
