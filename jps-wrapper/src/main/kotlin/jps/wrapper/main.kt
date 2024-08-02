@@ -19,8 +19,10 @@ import org.jetbrains.jps.model.module.JpsLibraryDependency
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.model.serialization.JpsModelSerializationDataService
 import org.jetbrains.jps.model.serialization.JpsPathMapper
+import org.jetbrains.jps.model.serialization.JpsProjectLoader
 import java.io.File
 import java.nio.file.Paths
+import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
@@ -222,7 +224,10 @@ private fun initializeModel(): JpsModel {
     )
 
     val pathVariables = JpsModelSerializationDataService.computeAllPathVariables(model.global)
-    JpsProjectLoader.loadProject(model.project, pathVariables, JpsPathMapper.IDENTITY, Properties.projectPath, Properties.projectBasePath, false)
+    val projectPath = Path(Properties.projectPath)
+    val projectBasePath = Properties.projectBasePath?.let { Path(it) }
+    val externalProjectConfigDir = System.getProperty("external.project.config")?.let { Path(it) }
+    JpsProjectLoader.loadProject(model.project, pathVariables, JpsPathMapper.IDENTITY, projectPath, projectBasePath, false, externalProjectConfigDir)
     val projectExtension = JpsJavaExtensionService.getInstance().getOrCreateProjectExtension(model.project)
     if (Properties.outputPath != null) {
         projectExtension.outputUrl = "file://${Properties.outputPath}"

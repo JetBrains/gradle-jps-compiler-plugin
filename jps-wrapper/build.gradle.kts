@@ -3,12 +3,18 @@ plugins {
     `maven-publish`
 }
 
-val jpsVersion = "221.3598"
+val jpsVersion = "243.6050"
 
-project.version = "0.32"
+project.version = "0.33"
 
 dependencies {
     compileOnly("com.jetbrains.intellij.tools:jps-build-standalone:$jpsVersion") {
+        targetConfiguration = "runtime"
+    }
+    implementation("com.jetbrains.intellij.platform:jps-model-serialization:$jpsVersion") {
+        targetConfiguration = "runtime"
+    }
+    implementation("com.jetbrains.intellij.platform:util-xml-dom:$jpsVersion") {
         targetConfiguration = "runtime"
     }
 }
