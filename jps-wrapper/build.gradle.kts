@@ -3,6 +3,7 @@ plugins {
     `maven-publish`
 }
 
+project.group = "com.jetbrains.intellij.idea"
 project.version = "0.33"
 
 kotlin {
@@ -16,13 +17,13 @@ repositories {
 }
 
 dependencies {
-    compileOnly(libs.intellij.tools.jps.build.standalone) {
+    api(libs.intellij.tools.jps.build.standalone) {
         // `com.jetbrains.intellij.tools:jps-build-standalone` is incorrectly published,
         // some of its `compile`-scope dependencies are declared in the `runtime` scope insteaed
         // so we request them here instead.
         targetConfiguration = "runtime"
     }
-    implementation(libs.intellij.platform.model.serialization) {
+    api(libs.intellij.platform.model.serialization) {
         // `com.jetbrains.intellij.platform:jps-model-serialization` is incorrectly published,
         // some of its `compile`-scope dependencies are declared in the `runtime` scope insteaed
         // so we request them here instead.
@@ -51,11 +52,8 @@ publishing {
     }
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.jetbrains.intellij.idea"
             artifactId = "jps-wrapper"
-            artifact(tasks.jar.get().outputs.files.singleFile) {
-                builtBy(tasks.jar)
-            }
+            from(components["java"])
         }
     }
 }
