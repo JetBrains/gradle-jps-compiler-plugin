@@ -4,7 +4,7 @@ plugins {
 }
 
 project.group = "com.jetbrains.intellij.idea"
-project.version = "0.34"
+project.version = "0.35"
 
 kotlin {
     jvmToolchain(11)
