@@ -1,22 +1,34 @@
 plugins {
-    conventions.`kotlin-jvm`
+    alias(libs.plugins.kotlin.jvm)
     `maven-publish`
 }
 
-val jpsVersion = "243.6050"
-
 project.version = "0.33"
 
+kotlin {
+    jvmToolchain(11)
+}
+
+repositories {
+    maven("https://cache-redirector.jetbrains.com/www.jetbrains.com/intellij-repository/releases")
+    maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
+    maven("https://cache-redirector.jetbrains.com/repo1.maven.org/maven2")
+}
+
 dependencies {
-    compileOnly("com.jetbrains.intellij.tools:jps-build-standalone:$jpsVersion") {
+    compileOnly(libs.intellij.tools.jps.build.standalone) {
+        // `com.jetbrains.intellij.tools:jps-build-standalone` is incorrectly published,
+        // some of its `compile`-scope dependencies are declared in the `runtime` scope insteaed
+        // so we request them here instead.
         targetConfiguration = "runtime"
     }
-    implementation("com.jetbrains.intellij.platform:jps-model-serialization:$jpsVersion") {
+    implementation(libs.intellij.platform.model.serialization) {
+        // `com.jetbrains.intellij.platform:jps-model-serialization` is incorrectly published,
+        // some of its `compile`-scope dependencies are declared in the `runtime` scope insteaed
+        // so we request them here instead.
         targetConfiguration = "runtime"
     }
-    implementation("com.jetbrains.intellij.platform:util-xml-dom:$jpsVersion") {
-        targetConfiguration = "runtime"
-    }
+    implementation(libs.intellij.platform.util.xml.dom)
 }
 
 tasks {

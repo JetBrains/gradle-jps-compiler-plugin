@@ -1,0 +1,13 @@
+[versions]
+kotlin = "2.0.20"
+ij-platform = "243.6050"
+
+[libraries]
+
+intellij-tools-jps-build-standalone = { module = "com.jetbrains.intellij.tools:jps-build-standalone", version.ref = "ij-platform" }
+intellij-platform-model-serialization = { module = "com.jetbrains.intellij.platform:jps-model-serialization", version.ref = "ij-platform" }
+intellij-platform-util-xml-dom = { module = "com.jetbrains.intellij.platform:util-xml-dom", version.ref = "ij-platform" }
+
+[plugins]
+
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
