@@ -146,7 +146,7 @@ public final class JpsProjectLoader {
     }
 
     private void loadFromDirectory(@NotNull Path dir, @NotNull Executor executor) {
-        myProject.setName(JpsProjectConfigurationLoading.getDirectoryBaseProjectName(dir));
+        myProject.setName(JpsProjectConfigurationLoading.getDirectoryBaseProjectName(dir.getParent(), dir));
         Path defaultConfigFile = dir.resolve("misc.xml");
         JpsSdkType<?> projectSdkType = loadProjectRoot(myComponentLoader.loadRootElement(defaultConfigFile));
         for (JpsModelSerializerExtension extension : JpsModelSerializerExtension.getExtensions()) {

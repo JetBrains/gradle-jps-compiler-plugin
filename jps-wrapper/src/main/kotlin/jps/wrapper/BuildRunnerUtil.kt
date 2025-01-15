@@ -17,11 +17,11 @@ import org.jetbrains.jps.model.java.JavaSourceRootType.SOURCE
 import org.jetbrains.jps.model.java.JavaSourceRootType.TEST_SOURCE
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.model.module.JpsModuleSourceRoot
-import java.io.File
+import java.nio.file.Path
 
 fun runBuild(
     loader: JpsModelLoader,
-    dataStorageRoot: File,
+    dataStorageRoot: Path,
     modulesSet: Set<String>,
     filePaths: List<String>,
     forceBuild: Boolean,

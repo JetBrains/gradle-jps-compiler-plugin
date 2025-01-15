@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.8.10"
-ij-platform = "243.6050"
+ij-platform = "251.15859"
 
 [libraries]
 

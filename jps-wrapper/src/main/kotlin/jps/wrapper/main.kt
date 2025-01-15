@@ -123,7 +123,7 @@ private fun runBuild(model: JpsModel) {
         val allModules = mainJpsModule == null && filePaths.isEmpty()
         runBuild(
             loader = { model },
-            dataStorageRoot = File(Properties.dataStorageRoot!!),
+            dataStorageRoot = Path(Properties.dataStorageRoot!!),
             modulesSet = modulesToBuild,
             filePaths = filePaths,
             forceBuild = Properties.forceRebuild,
